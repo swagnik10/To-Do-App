@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { nanoid } from 'nanoid'
 import { useDispatch, useSelector } from 'react-redux'
 
@@ -7,6 +7,7 @@ import type { RootState } from '../app/store'
 import DeleteConfirmationDialog from './DeleteConfirmationDialog'
 import EditTodoDialog from './EditTodoDialog'
 import AddTodoDialog from './AddToDoDialog'
+import Pagination from './Pagination'
 
 function TodoOperations() {
   const [searchText, setSearchText] = useState('')
@@ -14,10 +15,13 @@ function TodoOperations() {
   const [showAddDialog, setShowAddDialog] = useState(false)
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const [showEditDialog, setShowEditDialog] = useState(false)
+  const [currentPage, setCurrentPage] = useState(1)
 
   const [selectedTodoId, setSelectedTodoId] = useState<string | null>(null)
   const [selectedTodo, setSelectedTodo] = useState<Todo | null>(null)
   const [filter, setFilter] = useState<'all' | 'active' | 'completed'>('all')
+
+  const ITEMS_PER_PAGE = 5
 
   const dispatch = useDispatch()
 
@@ -46,6 +50,15 @@ function TodoOperations() {
         new Date(b.createdTime).getTime() -
         new Date(a.createdTime).getTime()
     )
+
+  const totalPages = Math.ceil(
+    filteredTodos.length / ITEMS_PER_PAGE
+  )
+
+  const paginatedTodos = filteredTodos.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  )
 
   const handleAddTodo = (inputText: string) => {
     if (!inputText.trim()) return
@@ -96,6 +109,10 @@ function TodoOperations() {
     setShowEditDialog(false)
     setSelectedTodo(null)
   }
+
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [searchText, filter])
 
   return (
     <div
@@ -180,7 +197,7 @@ function TodoOperations() {
           {/* Todo List */}
           <div className="bg-white rounded-xl shadow-lg overflow-hidden">
 
-            {filteredTodos.map((todo) => (
+            {paginatedTodos.map((todo) => (
               <div
                 key={todo.id}
                 className="flex items-center px-6 py-4 border-b last:border-b-0 hover:bg-gray-50"
@@ -279,6 +296,12 @@ function TodoOperations() {
             isOpen={showDeleteDialog}
             onClose={closeDeleteDialog}
             onConfirm={handleDelete}
+          />
+
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
           />
 
         </div>

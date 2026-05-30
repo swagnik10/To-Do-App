@@ -30,7 +30,7 @@ function EditTodoDialog({
     const canSave = trimmedText.length > 0 && hasChanges
 
     return (
-        <div className="fixed inset-0 flex items-center justify-center bg-black/50">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
             <div className="w-96 rounded-lg bg-white p-6">
 
                 {/* Header */}
