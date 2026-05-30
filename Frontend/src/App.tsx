@@ -1,12 +1,12 @@
 import './App.css'
-import ToDo from './components/ToDo.tsx'
+import TodoTask from './components/TodoOperations'
 
 
 function App() {
 
   return (
     <>
-      <ToDo />
+      <TodoTask />
     </>
   )
 }

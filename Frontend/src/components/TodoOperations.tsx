@@ -7,7 +7,7 @@ import type { RootState } from '../app/store'
 import DeleteConfirmationDialog from './DeleteConfirmationDialog'
 import EditTodoDialog from './EditTodoDialog'
 
-function Todo() {
+function TodoOperations() {
   const [text, setText] = useState('')
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const [selectedTodoId, setSelectedTodoId] = useState<string | null>(null)
@@ -166,4 +166,4 @@ function Todo() {
   )
 }
 
-export default Todo
+export default TodoOperations
