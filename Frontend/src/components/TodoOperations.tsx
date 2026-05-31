@@ -2,8 +2,8 @@ import { useEffect, useState } from 'react'
 import { nanoid } from 'nanoid'
 import { useDispatch, useSelector } from 'react-redux'
 
-import { addTodo, toggleTodo, deleteTodo, type Todo, updateTodo } from '../features/todos/todoSlice'
-import type { RootState } from '../app/store'
+import { createTodoAsync, fetchTodosAsync, deleteTodoAsync, updateTodoAsync, toggleTodoAsync, type Todo } from '../features/todos/todoSlice'
+import type { AppDispatch, RootState } from '../app/store'
 import DeleteConfirmationDialog from './DeleteConfirmationDialog'
 import EditTodoDialog from './EditTodoDialog'
 import AddTodoDialog from './AddToDoDialog'
@@ -23,7 +23,7 @@ function TodoOperations() {
 
   const ITEMS_PER_PAGE = 5
 
-  const dispatch = useDispatch()
+  const dispatch = useDispatch<AppDispatch>()
 
   const todos = useSelector(
     (state: RootState) => state.todo.todos
@@ -64,7 +64,7 @@ function TodoOperations() {
     if (!inputText.trim()) return
 
     dispatch(
-      addTodo({
+      createTodoAsync({
         id: nanoid(),
         text: inputText.trim(),
         createdTime: new Date().toISOString(),
@@ -77,23 +77,30 @@ function TodoOperations() {
   const handleDelete = () => {
     if (!selectedTodoId) return
 
-    dispatch(deleteTodo(selectedTodoId))
+    dispatch(deleteTodoAsync(selectedTodoId))
 
     closeDeleteDialog()
   }
 
-  const handleSaveEdit = (updatedText: string) => {
+  const handleSaveEdit = async (updatedText: string) => {
     if (!selectedTodo) return
 
-    dispatch(
-      updateTodo({
-        id: selectedTodo.id,
+   await dispatch(updateTodoAsync({
+        ...selectedTodo,
         text: updatedText
       })
     )
-
+    await dispatch(fetchTodosAsync())
     setShowEditDialog(false)
     setSelectedTodo(null)
+  }
+
+  const toggleTodo = async (todo: Todo) => {
+    dispatch(await toggleTodoAsync({
+      ...todo,
+      isCompleted: !todo.isCompleted
+    }))
+    dispatch(await fetchTodosAsync())
   }
 
   const closeDeleteDialog = () => {
@@ -113,6 +120,10 @@ function TodoOperations() {
   useEffect(() => {
     setCurrentPage(1)
   }, [searchText, filter])
+
+  useEffect(() => {
+    dispatch(fetchTodosAsync())
+  }, [dispatch])
 
   return (
     <div
@@ -210,7 +221,7 @@ function TodoOperations() {
                     type="checkbox"
                     checked={todo.isCompleted}
                     onChange={() =>
-                      dispatch(toggleTodo(todo.id))
+                      toggleTodo(todo)
                     }
                     className="h-5 w-5"
                   />

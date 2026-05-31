@@ -38,7 +38,6 @@ public class TodoRepository : ITodoRepository
     public async Task AddAsync(ToDoItemDto item)
     {
         TodoItem todoItem = _mapper.Map<TodoItem>(item);
-        todoItem.CreatedAt = DateTime.Now;
         await _session.SaveAsync(todoItem);
     }
 

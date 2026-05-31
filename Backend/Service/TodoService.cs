@@ -39,7 +39,7 @@ public class TodoService : ITodoService
         
     }
 
-    public async Task UpdateAsync(string todoid, ToDoItemDto item)
+    public async Task UpdateAsync(string todoid, UpdateToDoDto item)
     {
         using (var uow = _uowFactory.Create())
         {
@@ -49,8 +49,8 @@ public class TodoService : ITodoService
             if (existing == null)
                 throw new Exception("Todo not found");
 
-            existing.TodoTitle = item.TodoTitle;
-            existing.IsCompleted = item.IsCompleted;
+            existing.TodoTitle = item.TodoTitle ?? existing.TodoTitle;
+            existing.IsCompleted = item.IsCompleted ?? existing.IsCompleted;
 
             await _repo.UpdateAsync(existing);
 

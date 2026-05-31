@@ -93,7 +93,7 @@ public class TodoController : ControllerBase
     // PUT: api/todo/{id}
     // =========================
     [HttpPut("{todoid}")]
-    public async Task<IActionResult> Update(string todoid, [FromBody] ToDoItemDto todo)
+    public async Task<IActionResult> Update(string todoid, [FromBody] UpdateToDoDto todo)
     {
         if (todo == null)
         {
