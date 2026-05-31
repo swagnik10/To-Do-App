@@ -30,8 +30,7 @@ public class TodoItemMap : ClassMap<TodoItem>
             .Not.Nullable();
 
         Map(x => x.CreatedAt)
-            .Column("CreatedAt")
-            .Not.Nullable();
+            .Column("CreatedAt");
     }
 }
 

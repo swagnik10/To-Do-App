@@ -1,4 +1,7 @@
-﻿using Backend.Domain;
+﻿using AutoMapper;
+using Backend.Domain;
+using Backend.Dtos;
+using NHibernate.Linq;
 
 namespace Backend.Repositories;
 
@@ -6,17 +9,47 @@ public class TodoRepository : ITodoRepository
 {
     private readonly NHibernate.ISession _session;
     private readonly ILogger<TodoRepository> _logger;
+    private readonly IMapper _mapper;
 
-    public TodoRepository(NHibernate.ISession session, ILogger<TodoRepository> logger)
+    public TodoRepository(NHibernate.ISession session, ILogger<TodoRepository> logger, IMapper mapper)
     {
         _session = session;
-        _logger = logger;   
+        _logger = logger;
+        _mapper = mapper;
     }
-    public List<TodoItem> GetTodoItems()
+    public async Task<List<ToDoItemDto>> GetTodoItemsAsync()
     {
         _logger.LogInformation("Fetching todo items from the database.");
-        List<TodoItem> todoItems = _session.Query<TodoItem>().ToList();
+        List<TodoItem> todoItems = await _session.Query<TodoItem>().ToListAsync();
         _logger.LogInformation("Fetching completed");
-        return todoItems;
+        return _mapper.Map<List<ToDoItemDto>>(todoItems);
+    }
+    public async Task<ToDoItemDto> GetByIdAsync(string todoid)
+    {
+        var todoItem = await _session.Query<TodoItem>().FirstOrDefaultAsync(t => t.TodoId == todoid);
+        return _mapper.Map<ToDoItemDto>(todoItem);
+    }
+
+    public async Task<TodoItem> GetByIdForOpearion(string todoid)
+    {
+        return await _session.Query<TodoItem>().FirstOrDefaultAsync(t => t.TodoId == todoid);    
+    }
+
+    public async Task AddAsync(ToDoItemDto item)
+    {
+        TodoItem todoItem = _mapper.Map<TodoItem>(item);
+        todoItem.CreatedAt = DateTime.Now;
+        await _session.SaveAsync(todoItem);
+    }
+
+    public async Task UpdateAsync(TodoItem item)
+    {
+        item.CreatedAt = DateTime.Now;
+        await _session.UpdateAsync(item);
+    }
+
+    public async Task DeleteAsync(TodoItem item)
+    {
+        await _session.DeleteAsync(item);
     }
 }

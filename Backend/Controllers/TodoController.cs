@@ -1,4 +1,6 @@
-﻿using Backend.Repositories;
+﻿using Backend.Domain;
+using Backend.Dtos;
+using Backend.Service;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Backend.Controllers;
@@ -7,20 +9,143 @@ namespace Backend.Controllers;
 [ApiController]
 public class TodoController : ControllerBase
 {
-    private readonly ITodoRepository _todoRepository;
     public readonly ILogger<TodoController> _logger;
+    private readonly ITodoService _todoService;
 
-    public TodoController(ITodoRepository todoRepository, ILogger<TodoController> logger)
+    public TodoController(ILogger<TodoController> logger, ITodoService todoService)
     {
-        _todoRepository = todoRepository;
         _logger = logger;
+        _todoService = todoService;
     }
+    // =========================
+    // GET: api/todo
+    // =========================
     [HttpGet]
-    public IActionResult Get()
+    public async Task<IActionResult> GetAll()
     {
-        _logger.LogInformation("Received request to fetch todo items.");
-        List<Domain.TodoItem> todos = _todoRepository.GetTodoItems();
-        _logger.LogInformation("Fetched {Count} todo items.", todos.Count);
-        return Ok(todos);
+        _logger.LogInformation("Fetching all todos");
+
+        try
+        {
+            var todos = await _todoService.GetAllAsync();
+
+            return Ok(todos);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"An error occurred while creating the todo: {ex.Message}");
+        }
+    }
+
+    // =========================
+    // GET: api/todo/{todoid}
+    // =========================
+    [HttpGet("{todoid}")]
+    public async Task<IActionResult> GetById(string todoid)
+    {
+        _logger.LogInformation("Fetching todo with id {Id}", todoid);
+
+        try
+        {
+            var todo = await _todoService.RetrieveByIdAsync(todoid);
+
+            if (todo == null)
+            {
+                _logger.LogWarning("Todo with id {Id} not found", todoid);
+                return NotFound($"Todo with id {todoid} not found");
+            }
+
+            return Ok(todo);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"An error occurred while creating the todo: {ex.Message}");
+        }
+    }
+
+
+    // =========================
+    // POST: api/todo
+    // =========================
+    [HttpPost]
+    public async Task<IActionResult> Create([FromBody] ToDoItemDto todo)
+    {
+        if (todo == null)
+        {
+            return BadRequest("Invalid todo data");
+        }
+
+        _logger.LogInformation("Creating new todo");
+
+        try
+        {
+            await _todoService.CreateAsync(todo);
+            return Ok("Sucessfully Todo Aded");
+
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"An error occurred while creating the todo: {ex.Message}");
+        }
+    }
+
+    // =========================
+    // PUT: api/todo/{id}
+    // =========================
+    [HttpPut("{todoid}")]
+    public async Task<IActionResult> Update(string todoid, [FromBody] ToDoItemDto todo)
+    {
+        if (todo == null)
+        {
+            return BadRequest("Invalid todo data");
+        }
+
+        try
+        {
+            _logger.LogInformation("Updating todo with id {Id}", todoid);
+
+            var existing = await _todoService.RetrieveByIdAsync(todoid);
+
+            if (existing == null)
+            {
+                _logger.LogWarning("Todo with id {Id} not found for update", todoid);
+                return NotFound();
+            }
+
+            await _todoService.UpdateAsync(todoid, todo);
+            return Ok("Sucessfully Todo Updated");
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"An error occurred while creating the todo: {ex.Message}");
+        }
+
+    }
+
+    // =========================
+    // DELETE: api/todo/{id}
+    // =========================
+    [HttpDelete("{todoid}")]
+    public async Task<IActionResult> Delete(string todoid)
+    {
+        _logger.LogInformation("Deleting todo with id {Id}", todoid);
+
+        try
+        {
+            var existing = await _todoService.RetrieveByIdAsync(todoid);
+
+            if (existing == null)
+            {
+                _logger.LogWarning("Todo with id {Id} not found for delete", todoid);
+                return NotFound();
+            }
+
+            await _todoService.DeleteAsync(todoid);
+            return Ok("Sucessfully Todo Deleted");
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"An error occurred while creating the todo: {ex.Message}");
+        }
     }
 }

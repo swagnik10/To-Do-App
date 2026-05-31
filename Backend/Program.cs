@@ -1,5 +1,7 @@
+using Backend.AutoMapper;
 using Backend.DbConncetion;
 using Backend.Repositories;
+using Backend.Service;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -19,10 +21,18 @@ builder.Host.UseSerilog((context, services, configuration) =>
 
 // Dependency Injection
 builder.Services.AddScoped<ITodoRepository, TodoRepository>();
+builder.Services.AddScoped<IUnitOfWorkFactory, UnitOfWorkFactory>();
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<ITodoService, TodoService>();
 
 builder.Services.AddScoped<NHibernate.ISession>(sp =>
 {
     return NHibernateHelper.SessionFactory.OpenSession();
+});
+
+builder.Services.AddAutoMapper(cfg =>
+{
+    cfg.AddProfile<TodoMappingProfile>();
 });
 
 var app = builder.Build();
