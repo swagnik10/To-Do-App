@@ -8,6 +8,7 @@ import DeleteConfirmationDialog from './DeleteConfirmationDialog'
 import EditTodoDialog from './EditTodoDialog'
 import AddTodoDialog from './AddToDoDialog'
 import Pagination from './Pagination'
+import todoBackground from '../../assets/todo-background.jpg'
 
 function TodoOperations() {
   const [searchText, setSearchText] = useState('')
@@ -130,7 +131,7 @@ function TodoOperations() {
       className="min-h-screen bg-cover bg-center bg-no-repeat"
       style={{
         backgroundImage:
-          "url(../assets/todo-background.jpg)"
+          `url(${todoBackground})`
       }}
     >
       <div className="min-h-screen bg-black/60">

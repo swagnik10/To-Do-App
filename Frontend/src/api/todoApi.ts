@@ -1,8 +1,9 @@
 import axios from 'axios'
 import type { Todo } from '../features/todos/todoSlice'
+import { API_BASE_URL } from './apiConfig'
 
 const api = axios.create({
-  baseURL: 'https://localhost:7258/api/todo'
+  baseURL: API_BASE_URL
 })
 
 export const createTodoApi = async (todo: Todo) => {
