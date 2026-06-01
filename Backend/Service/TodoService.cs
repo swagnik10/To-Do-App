@@ -39,7 +39,7 @@ public class TodoService : ITodoService
         
     }
 
-    public async Task UpdateAsync(string todoid, UpdateToDoDto item)
+    public async Task<ToDoItemDto> UpdateAsync(string todoid, UpdateToDoDto item)
     {
         using (var uow = _uowFactory.Create())
         {
@@ -52,9 +52,11 @@ public class TodoService : ITodoService
             existing.TodoTitle = item.TodoTitle ?? existing.TodoTitle;
             existing.IsCompleted = item.IsCompleted ?? existing.IsCompleted;
 
-            await _repo.UpdateAsync(existing);
+            var todoItem = await _repo.UpdateAsync(existing);
 
             await uow.CommitAsync();
+
+            return todoItem;
 
         }
 

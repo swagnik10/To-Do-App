@@ -112,8 +112,8 @@ public class TodoController : ControllerBase
                 return NotFound();
             }
 
-            await _todoService.UpdateAsync(todoid, todo);
-            return Ok("Sucessfully Todo Updated");
+            var todoItem = await _todoService.UpdateAsync(todoid, todo);
+            return Ok(todoItem);
         }
         catch (Exception ex)
         {

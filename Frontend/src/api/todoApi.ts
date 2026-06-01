@@ -33,7 +33,12 @@ export const updateTodoApi = async (todo: Todo) => {
     todoTitle: todo.text
   })
 
-  return response.data
+  return {
+      id: response.data.todoId,
+      text: response.data.todoTitle,
+      isCompleted: response.data.isCompleted,
+      createdTime: response.data.createdAt
+    };
 }
 
 export const toggleTodoApi = async (todo: Todo) => {
@@ -41,7 +46,12 @@ export const toggleTodoApi = async (todo: Todo) => {
     isCompleted: todo.isCompleted
   })
 
-  return response.data
+  return {
+      id: response.data.todoId,
+      text: response.data.todoTitle,
+      isCompleted: response.data.isCompleted,
+      createdTime: response.data.createdAt
+    };
 }
 
 export default api

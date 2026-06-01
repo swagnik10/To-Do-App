@@ -41,10 +41,11 @@ public class TodoRepository : ITodoRepository
         await _session.SaveAsync(todoItem);
     }
 
-    public async Task UpdateAsync(TodoItem item)
+    public async Task<ToDoItemDto> UpdateAsync(TodoItem item)
     {
         item.CreatedAt = DateTime.Now;
         await _session.UpdateAsync(item);
+        return _mapper.Map<ToDoItemDto>(item);
     }
 
     public async Task DeleteAsync(TodoItem item)

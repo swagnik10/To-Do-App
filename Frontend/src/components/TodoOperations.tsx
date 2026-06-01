@@ -85,22 +85,22 @@ function TodoOperations() {
   const handleSaveEdit = async (updatedText: string) => {
     if (!selectedTodo) return
 
-   await dispatch(updateTodoAsync({
-        ...selectedTodo,
-        text: updatedText
-      })
+    await dispatch(updateTodoAsync({
+      ...selectedTodo,
+      text: updatedText
+    })
     )
-    await dispatch(fetchTodosAsync())
+
     setShowEditDialog(false)
     setSelectedTodo(null)
   }
 
   const toggleTodo = async (todo: Todo) => {
-    dispatch(await toggleTodoAsync({
+    await dispatch(toggleTodoAsync({
       ...todo,
       isCompleted: !todo.isCompleted
     }))
-    dispatch(await fetchTodosAsync())
+
   }
 
   const closeDeleteDialog = () => {

@@ -46,18 +46,18 @@ export const deleteTodoAsync = createAsyncThunk(
 export const updateTodoAsync = createAsyncThunk(
   'todo/updateTodo',
   async (todo: Todo) => {
-    await updateTodoApi(todo)
+    const updatedTodo = await updateTodoApi(todo)
 
-    return todo
+    return updatedTodo
   }
 )
 
 export const toggleTodoAsync = createAsyncThunk(
   'todo/toggleTodo',
   async (todo: Todo) => {
-    await toggleTodoApi(todo)
+    const updatedTodo = await toggleTodoApi(todo)
 
-    return todo
+    return updatedTodo
   }
 )
 
@@ -112,12 +112,12 @@ const todoSlice = createSlice({
     builder.addCase(
       updateTodoAsync.fulfilled,
       (state, action) => {
-        const todo = state.todos.find(
+        const index = state.todos.findIndex(
           t => t.id === action.payload.id
-        )
+        );
 
-        if (todo) {
-          todo.text = action.payload.text
+        if (index !== -1) {
+          state.todos[index] = action.payload;
         }
       }
     )
@@ -125,19 +125,19 @@ const todoSlice = createSlice({
     builder.addCase(
       toggleTodoAsync.fulfilled,
       (state, action) => {
-        const todo = state.todos.find(
+        //console.log("Payload: ", action.payload);
+        //console.log(JSON.parse(JSON.stringify(state.todos)));
+        const index = state.todos.findIndex(
           t => t.id === action.payload.id
-        )
+        );
 
-        if (todo) {
-          todo.isCompleted = action.payload.isCompleted
+        if (index !== -1) {
+          state.todos[index] = action.payload;
         }
       }
     )
   }
 
 })
-
-//export const { toggleTodo } = todoSlice.actions
 
 export default todoSlice.reducer
