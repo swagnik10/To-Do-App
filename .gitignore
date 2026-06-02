@@ -45,3 +45,8 @@ packages/
 !packages/build/
 
 .github
+
+# docker-compose env file
+
+docker-compose.env
+

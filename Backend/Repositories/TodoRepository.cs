@@ -19,15 +19,49 @@ public class TodoRepository : ITodoRepository
     }
     public async Task<List<ToDoItemDto>> GetTodoItemsAsync()
     {
-        _logger.LogInformation("Fetching todo items from the database.");
-        List<TodoItem> todoItems = await _session.Query<TodoItem>().ToListAsync();
-        _logger.LogInformation("Fetching completed");
-        return _mapper.Map<List<ToDoItemDto>>(todoItems);
+        try
+        {
+            _logger.LogInformation("Fetching todo items from the database.");
+            List<TodoItem> todoItems = await _session.Query<TodoItem>().ToListAsync();
+            _logger.LogInformation("Fetching completed");
+            return _mapper.Map<List<ToDoItemDto>>(todoItems);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Database error");
+
+            Console.WriteLine(ex.ToString());
+
+            if (ex.InnerException != null)
+            {
+                Console.WriteLine("INNER:");
+                Console.WriteLine(ex.InnerException.ToString());
+            }
+
+            throw;
+        }
     }
     public async Task<ToDoItemDto> GetByIdAsync(string todoid)
     {
-        var todoItem = await _session.Query<TodoItem>().FirstOrDefaultAsync(t => t.TodoId == todoid);
-        return _mapper.Map<ToDoItemDto>(todoItem);
+        try
+        {
+            var todoItem = await _session.Query<TodoItem>().FirstOrDefaultAsync(t => t.TodoId == todoid);
+            return _mapper.Map<ToDoItemDto>(todoItem);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Database error");
+
+            Console.WriteLine(ex.ToString());
+
+            if (ex.InnerException != null)
+            {
+                Console.WriteLine("INNER:");
+                Console.WriteLine(ex.InnerException.ToString());
+            }
+
+            throw;
+        }
     }
 
     public async Task<TodoItem> GetByIdForOpearion(string todoid)
@@ -37,19 +71,70 @@ public class TodoRepository : ITodoRepository
 
     public async Task AddAsync(ToDoItemDto item)
     {
-        TodoItem todoItem = _mapper.Map<TodoItem>(item);
-        await _session.SaveAsync(todoItem);
+        try
+        {
+            TodoItem todoItem = _mapper.Map<TodoItem>(item);
+            await _session.SaveAsync(todoItem);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Database error");
+
+            Console.WriteLine(ex.ToString());
+
+            if (ex.InnerException != null)
+            {
+                Console.WriteLine("INNER:");
+                Console.WriteLine(ex.InnerException.ToString());
+            }
+
+            throw;
+        }
     }
 
     public async Task<ToDoItemDto> UpdateAsync(TodoItem item)
     {
-        item.CreatedAt = DateTime.Now;
-        await _session.UpdateAsync(item);
-        return _mapper.Map<ToDoItemDto>(item);
+        try
+        {
+            item.CreatedAt = DateTime.Now;
+            await _session.UpdateAsync(item);
+            return _mapper.Map<ToDoItemDto>(item);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Database error");
+
+            Console.WriteLine(ex.ToString());
+
+            if (ex.InnerException != null)
+            {
+                Console.WriteLine("INNER:");
+                Console.WriteLine(ex.InnerException.ToString());
+            }
+
+            throw;
+        }
     }
 
     public async Task DeleteAsync(TodoItem item)
     {
-        await _session.DeleteAsync(item);
+        try
+        {
+            await _session.DeleteAsync(item);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Database error");
+
+            Console.WriteLine(ex.ToString());
+
+            if (ex.InnerException != null)
+            {
+                Console.WriteLine("INNER:");
+                Console.WriteLine(ex.InnerException.ToString());
+            }
+
+            throw;
+        }
     }
 }

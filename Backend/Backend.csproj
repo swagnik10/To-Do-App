@@ -7,9 +7,9 @@
 	<RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
   </PropertyGroup>
 
-  <ItemGroup>
-    <Content Include="packages.lock.json" />
-  </ItemGroup>
+	<ItemGroup>
+		<None Include="packages.lock.json" Visible="true" />
+	</ItemGroup>
 
 	<ItemGroup>
 		<PackageReference Include="AutoMapper" Version="16.1.1" />

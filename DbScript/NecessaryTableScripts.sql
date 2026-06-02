@@ -1,5 +1,7 @@
 create database Todo;
 
+ Use Todo;
+
 create schema Todos;
 
 CREATE TABLE Todos.TodoItem
