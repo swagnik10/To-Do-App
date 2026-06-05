@@ -1,0 +1,27 @@
+Browser
+   |
+   v
+todo.local:8088
+   |
+   v
+Port Forward
+   |
+   v
+NGINX Ingress
+   |
+   +--------------------+
+   |                    |
+   v                    v
+Frontend Service     Backend Service
+   |                    |
+   v                    v
+Frontend Pod        Backend Pod
+                         |
+                         v
+                  SQL Server Service
+                         |
+                         v
+                  SQL Server Pod
+                         |
+                         v
+                     PVC Storage

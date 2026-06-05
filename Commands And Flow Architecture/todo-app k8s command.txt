@@ -1,0 +1,115 @@
+to act with todo app
+
+namespace created and applied-> kubectl apply -f k8s-manifest-file/namespace.yaml
+
+sql server service creation -
+
+enconding the db password ->
+for macos/linux - echo -n "YourStrongPassword123!" | base64
+for windows - [Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes("YourStrongPassword123!"))
+
+
+secrets file created -> kubectl apply -f k8s-manifest-file/sqlserver/secret.yaml
+
+kubectl get secrets -n todo-app
+
+
+persistant volume and persistant volume claim
+
+In Kubernetes, a PVC (PersistentVolumeClaim) usually binds to a PV (PersistentVolume). However, with Minikube, things are a little different.
+In Minikube has a default StorageClass that dynamically provisions storage.
+
+kubectl get storageclass  -> you will see a deafult one
+
+kubectl apply -f k8s-manifest-file/sqlserver/pvc.yaml
+kubectl get pvc -n todo-app
+
+
+then sql service's deployement created 
+
+kubectl apply -f k8s-manifest-file/sqlserver/deployment.yaml
+
+kubectl get deployment -n todo-app
+
+then sql service's service created
+
+kubectl apply -f k8s-manifest-file/sqlserver/service.yaml
+
+kubectl get svc -n todo-app
+ 
+to check whether dns working correctly or not
+
+kubectl run dns-test--image=busybox:1.36 --rm -it --restart=Never -n todo-app -- nslookup sqlserver-service
+
+
+
+Then we have to create the database, tables inside the sql server pod
+first we have to go inside the pod 
+
+kubectl exec -it deployment/sqlserver -n todo-app -- /bin/bash
+
+then connecting the sql server -> /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'YourStrongPassword123!' -C
+
+now we have to create database,tables from scripts
+
+
+
+Next we have created the backend deployment
+
+kubectl apply -f k8s-manifest-file/backend/deployment.yaml
+to go inside the pod -> kubectl exec -it backend-6c5b57956b-kwdsg -n todo-app -- sh
+to check the logs -> kubectl logs backend-6c5b57956b-kwdsg -n todo-app
+
+then backend service created 
+
+this will give u to test the backend api url that is working or not
+
+kubectl run curl-test --image=curlimages/curl --rm -it --restart=Never -n todo-app -- sh
+
+after that -> curl http://backend-service:8080/api/todo
+
+
+
+Next we have created the frontend deployment
+
+kubectl run curl-test --image=curlimages/curl --rm -it --restart=Never -n todo-app -- sh
+ 
+curl http://frontend-service
+
+
+our 3 tier app is running now we have to configure the ingress
+
+minikube addons enable ingress
+
+one ingress-nginx namespace created....
+
+ingress implemented 
+
+kubectl get ingress -n todo-app
+
+
+port forwarding 
+
+kubectl port-forward -n todo-app svc/frontend-service 3000:80
+
+http://localhost:3000
+
+
+to get the configured url
+minikube service ingress-nginx-controller --url
+
+
+we have to add a url to the host -> C:\Windows\System32\drivers\etc
+there is a host folder & add -> 127.0.0.1 todo.local
+
+
+to run the ingress (port forward)
+kubectl port-forward -n ingress-nginx svc/ingress-nginx-controller 8088:80
+
+frontend will work -> http://todo.local:8088/
+backend will work -> http://todo.local:8088/api/todo
+
+
+
+
+
