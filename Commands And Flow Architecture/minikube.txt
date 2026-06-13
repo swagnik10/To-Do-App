@@ -21,6 +21,7 @@ to start minikube -> minikube start --driver=docker
 kubectl get node
 kubectl get node -o wide
 
+to check the addons -> minikube addons list
 metrics server -> minikube addons enable metrics-server
 add the dashboard -> minikube addons enable dashboard
 to get the dahboard -> minikube dashboard
