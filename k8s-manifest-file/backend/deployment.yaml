@@ -20,10 +20,14 @@ spec:
       containers:
       - name: backend
 
-        image: swagnik10/todo-backend:1.1
+        image: swagnik10/todo-backend:v2
 
         ports:
         - containerPort: 8080
+
+        volumeMounts:
+        - name: backend-logs
+          mountPath: /app/logs
 
         resources:
           requests:
@@ -41,4 +45,9 @@ spec:
           value: "http://+:8080"
 
         - name: ConnectionStrings__DefaultConnection
-          value: "Server=sqlserver-service;Database=Todo;User Id=sa;Password=YourStrongPassword123!;TrustServerCertificate=True;"
+          value: "Server=sqlserver;Database=Todo;User Id=sa;Password=YourStrongPassword123!;TrustServerCertificate=True;"
+
+      volumes:
+      - name: backend-logs
+        persistentVolumeClaim:
+          claimName: backend-logs-pvc

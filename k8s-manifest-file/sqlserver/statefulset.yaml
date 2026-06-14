@@ -1,9 +1,12 @@
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: sqlserver
   namespace: todo-app
+
 spec:
+  serviceName: sqlserver
+
   replicas: 1
 
   selector:
@@ -33,14 +36,6 @@ spec:
             secretKeyRef:
               name: sqlserver-secret
               key: SA_PASSWORD
-
-        resources:
-          requests:
-            memory: "2Gi"
-            cpu: "1000m"
-          limits:
-            memory: "4Gi"
-            cpu: "2000m"
 
         volumeMounts:
         - name: sqlserver-storage

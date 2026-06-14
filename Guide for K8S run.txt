@@ -1,0 +1,40 @@
+Check minikube installation status ->
+    minikube status
+
+if it is stopped then simply 
+
+    minikube start
+
+
+if it is not installed go to this link and check the installation process-> https://github.com/swagnik10/ReactUserLogin/blob/master/Guide%20for%20K8S%20run.txt
+
+Apply the manifest files sequentially
+
+    kubectl apply -f k8s-manifest-file/namespace.yaml
+    kubectl apply -f k8s-manifest-file/secret.yaml
+    kubectl apply -f K8s-manifest-file/sqlserver/
+
+    kubectl apply -f k8s-manifest-file/db-init/
+
+    kubectl apply -f k8s-manifest-file/backend/   
+
+    kubectl apply -f k8s-manifest-file/frontend/   
+
+    kubectl apply -f k8s-manifest-file/ingress/  
+
+
+Go to this path of your local sytem and open the "host" file in admin mode
+
+    C:\Windows\System32\drivers\etc
+
+    add this -> 127.0.0.1 todo.local
+
+
+
+Open a terminal and run this command 
+
+    minikube tunnel
+    now to broswer and hit -> todo.local
+
+
+Note: To check more details see -> ./Commands and FLow Architecture/todo-app k8s command.txt 
