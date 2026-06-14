@@ -1,0 +1,5 @@
+IF DB_ID('Todo') IS NULL
+BEGIN
+    CREATE DATABASE Todo;
+END
+GO

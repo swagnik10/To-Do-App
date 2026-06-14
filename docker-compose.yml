@@ -17,6 +17,18 @@ services:
     volumes:
       - sqlserver-data:/var/opt/mssql
 
+  db-init:
+      build:
+        context: ./DbScript
+
+      container_name: todo-db-init
+
+      environment:
+        SA_PASSWORD: ${SA_PASSWORD}
+
+      depends_on:
+        - sqlserver
+
   backend:
     build:
       context: ./backend

@@ -20,7 +20,6 @@ dist-ssr
 *.suo
 *.ntvs*
 *.njsproj
-*.sln
 *.sw?
 
 
@@ -30,7 +29,6 @@ bin/
 obj/
 
 # ASP.NET Core
-appsettings.Development.json
 *.csproj.user
 
 # Logs
@@ -49,4 +47,7 @@ packages/
 # docker-compose env file
 
 docker-compose.env
+
+
+
 
