@@ -3,8 +3,16 @@ kind: Ingress
 metadata:
   name: todo-ingress
   namespace: todo-app
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+
 spec:
   ingressClassName: nginx
+
+  tls:
+    - hosts:
+        - todo.local
+      secretName: todo-tls
 
   rules:
   - host: todo.local

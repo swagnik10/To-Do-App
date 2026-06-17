@@ -1,0 +1,42 @@
+If mkcert is not installed then install that ->
+
+    choco install mkcert -y
+
+Check -> mkcert -CAROOT  -> get the path and go there 
+
+see for this two files -> rootCA.pem
+                         rootCA-key.pem
+
+if not there execute -> mkcert -install
+
+Now we have to add this certificate to our local system
+
+now go to -> certlm.msc
+	
+	Trusted Root Certification Authorities
+	└── Certificates
+	import  -> that rootCA.pem
+
+
+
+I have created one folder say Certificates and there I run this command ->
+
+    mkcert todo.local
+
+Ensure Docker Desktop and Minikube should run ->
+
+    check minikube status if stop then 
+
+        minikube start
+
+To create certificate inside the todo-app namespace
+
+    kubectl create secret tls todo-tls --cert=Certificates\todo.local.pem --key=Certificates\todo.local-key.pem -n todo-app
+
+ingress file changed
+
+    kubectl apply -f  k8s-manifest-file/ingress
+
+	redeploying the ingress -> kubectl rollout restart deployment ingress-nginx-controller -n ingress-nginx
+
+Now hit -> https://todo.local
