@@ -11,3 +11,14 @@ run the docker compose file
 Goto broswer and hit -> http://localhost:3000
 
 Note: To check the more details go to -> ./Commands and FLow Architecture/Docker compose commands.txt
+
+For ollama LLM inside the docker
+
+    Added the ollama service in docker compose file and one env added in backend service.
+
+    Go inside the ollama container
+
+        docker exec -it todo-ollama sh
+         and pull  -> ollama pull phi3:mini
+
+         docker compose up --build
