@@ -1,0 +1,42 @@
+User Command
+("Delete all shopping todos") or ("Show all shopping todos") or ("Mark all shopping todos as done")
+
+        ▼
+
+React Frontend
+
+        ▼
+
+ASP.NET Core API
+
+        ▼
+
+Ollama (phi3:mini)
+
+        ▼
+
+Structured Action
+{
+  Action: Delete,
+  Category: Shopping
+}
+
+        ▼
+
+Preview Matching Todos
+
+        ▼
+
+User Confirmation
+
+        ▼
+
+Bulk Execute
+
+        ▼
+
+Database Updated
+
+Three action can performed Select, Update, Delete
+
+Natural Language → AI Parsing → Preview → Confirmation → Execution.

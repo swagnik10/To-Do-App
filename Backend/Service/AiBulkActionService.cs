@@ -136,7 +136,7 @@ public class AiBulkActionService : IAiBulkActionService
 
                             Output:
                             {
-                              "action": "select",
+                              "action": "complete",
                               "category": "Shopping"
                             }
 

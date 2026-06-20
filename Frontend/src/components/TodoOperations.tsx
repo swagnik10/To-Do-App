@@ -12,6 +12,16 @@ import todoBackground from '../../assets/todo-background.jpg'
 import AiBulkActionDialog from './AiBulkActionDialog'
 
 function TodoOperations() {
+
+  const categories = [
+    'Work',
+    'Personal',
+    'Health',
+    'Shopping',
+    'Urgent',
+    'Other'
+  ]
+
   const [searchText, setSearchText] = useState('')
 
   const [showAddDialog, setShowAddDialog] = useState(false)
@@ -23,6 +33,7 @@ function TodoOperations() {
   const [selectedTodo, setSelectedTodo] = useState<Todo | null>(null)
   const [filter, setFilter] = useState<'all' | 'active' | 'completed'>('all')
   const [showAiBulkDialog, setShowAiBulkDialog] = useState(false)
+  const [categoryFilter, setCategoryFilter] = useState<string>('all')
 
   const ITEMS_PER_PAGE = 5
 
@@ -46,7 +57,13 @@ function TodoOperations() {
             ? !todo.isCompleted
             : todo.isCompleted
 
-      return matchesSearch && matchesFilter
+      const matchesCategory =
+        categoryFilter === 'all'
+          ? true
+          : todo.category === categoryFilter
+
+
+      return matchesSearch && matchesFilter && matchesCategory
     })
     .sort(
       (a, b) =>
@@ -123,7 +140,7 @@ function TodoOperations() {
 
   useEffect(() => {
     setCurrentPage(1)
-  }, [searchText, filter])
+  }, [searchText, filter, categoryFilter])
 
   useEffect(() => {
     dispatch(fetchTodosAsync())
@@ -195,6 +212,30 @@ function TodoOperations() {
                   Completed
                 </button>
 
+              </div>
+
+              {/* Category Filter */}
+              <div>
+                <select
+                  value={categoryFilter}
+                  onChange={(e) =>
+                    setCategoryFilter(e.target.value)
+                  }
+                  className="border rounded-lg px-4 py-2"
+                >
+                  <option value="all">
+                    All Categories
+                  </option>
+
+                  {categories.map((category) => (
+                    <option
+                      key={category}
+                      value={category}
+                    >
+                      {category}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               <div className="flex gap-2">
