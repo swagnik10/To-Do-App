@@ -61,7 +61,7 @@ function TodoOperations() {
     currentPage * ITEMS_PER_PAGE
   )
 
-  const handleAddTodo = (inputText: string) => {
+  const handleAddTodo = (inputText: string, category: string | null) => {
     if (!inputText.trim()) return
 
     dispatch(
@@ -69,7 +69,8 @@ function TodoOperations() {
         id: nanoid(),
         text: inputText.trim(),
         createdTime: new Date().toISOString(),
-        isCompleted: false
+        isCompleted: false,
+        category: category ?? 'Other'
       })
     )
     closeAddDialog()
@@ -236,6 +237,10 @@ function TodoOperations() {
                     {todo.text}
                   </span>
 
+                </div>
+
+                <div className="flex-1 text-center">
+                  {todo.category ?? 'Other'}
                 </div>
 
                 {/* Middle */}

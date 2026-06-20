@@ -6,6 +6,14 @@ export interface Todo {
   text: string
   createdTime: string
   isCompleted: boolean
+  category: string | null
+}
+
+export interface AiSuggestionResponse {
+  suggestedTitle: string
+  category: string
+  success: boolean
+  message: string | null
 }
 
 interface TodoState {
@@ -61,6 +69,7 @@ export const toggleTodoAsync = createAsyncThunk(
   }
 )
 
+
 const todoSlice = createSlice({
   name: 'todo',
   initialState,
@@ -90,7 +99,8 @@ const todoSlice = createSlice({
           id: todo.todoId,
           text: todo.todoTitle,
           isCompleted: todo.isCompleted,
-          createdTime: todo.createdAt
+          createdTime: todo.createdAt,
+          category: todo.category || 'Other'
         }))
       }
     )

@@ -11,7 +11,8 @@ export const createTodoApi = async (todo: Todo) => {
     todoId: todo.id,
     todoTitle: todo.text,
     isCompleted: todo.isCompleted,
-    createdAt: todo.createdTime
+    createdAt: todo.createdTime,
+    category: todo.category
   })
 
   return response.data
@@ -31,15 +32,17 @@ export const deleteTodoApi = async (todoId: string) => {
 
 export const updateTodoApi = async (todo: Todo) => {
   const response = await api.put(`/${todo.id}`, {
-    todoTitle: todo.text
+    todoTitle: todo.text,
+    category: todo.category
   })
 
   return {
-      id: response.data.todoId,
-      text: response.data.todoTitle,
-      isCompleted: response.data.isCompleted,
-      createdTime: response.data.createdAt
-    };
+    id: response.data.todoId,
+    text: response.data.todoTitle,
+    isCompleted: response.data.isCompleted,
+    createdTime: response.data.createdAt,
+    category: response.data.category || 'Other'
+  };
 }
 
 export const toggleTodoApi = async (todo: Todo) => {
@@ -48,11 +51,23 @@ export const toggleTodoApi = async (todo: Todo) => {
   })
 
   return {
-      id: response.data.todoId,
-      text: response.data.todoTitle,
-      isCompleted: response.data.isCompleted,
-      createdTime: response.data.createdAt
-    };
+    id: response.data.todoId,
+    text: response.data.todoTitle,
+    isCompleted: response.data.isCompleted,
+    createdTime: response.data.createdAt,
+    category: response.data.category || 'Other'
+  };
 }
+
+export const getAiSuggestionApi = async (
+  todoTitle: string
+) => {
+  const response = await api.post('/suggest', {
+    todoTitle
+  })
+
+  return response.data
+}
+
 
 export default api
