@@ -1,0 +1,45 @@
+User Opens Add Todo Dialog
+    ↓
+User Enters Todo Title
+    ↓
+Click Get AI Suggestion?
+    ↓
+ ┌───────────────┴───────────────┐
+ │                               │
+Yes                             No
+ │                               │
+ ▼                               ▼
+POST /api/todo/suggest      Select Category Manually
+ │                               │
+ ▼                               │
+TodoController                   │
+ │                               │
+ ▼                               │
+IAiSuggestionService             │
+ │                               │
+ ▼                               │
+Ollama                           │
+ │                               │
+ ▼                               │
+Suggested Title + Category       │
+ │                               │
+ ▼                               │
+Update Form Fields               │
+ └───────────────┬───────────────┘
+                 │
+                 ▼
+      User Reviews / Edits Values
+                 ↓
+             Click Save
+                 ↓
+         POST /api/todo
+                 ↓
+          TodoController
+                 ↓
+            TodoService
+                 ↓
+            Repository
+                 ↓
+             Database
+                 ↓
+        Todo Appears In UI

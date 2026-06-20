@@ -11,4 +11,6 @@ public interface ITodoRepository
     Task<ToDoItemDto> UpdateAsync(TodoItem item);
     Task DeleteAsync(TodoItem item);
     Task<TodoItem> GetByIdForOpearion(string todoid);
+    Task<List<TodoItem>> FindMatchingTodosAsync(string? category, bool? isCompleted);
+
 }

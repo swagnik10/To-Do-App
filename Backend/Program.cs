@@ -1,4 +1,5 @@
 using Backend.AutoMapper;
+using Backend.Configurations;
 using Backend.DbConncetion;
 using Backend.Repositories;
 using Backend.Service;
@@ -32,12 +33,28 @@ builder.Services.AddCors(options =>
         });
 });
 
+builder.Services.AddHttpClient<IAiSuggestionService, AiSuggestionService>(
+    client =>
+    {
+        client.Timeout = TimeSpan.FromMinutes(2);
+    });
+
+builder.Services.AddHttpClient<IAiBulkActionService, AiBulkActionService>(
+    client =>
+    {
+        client.Timeout = TimeSpan.FromMinutes(10);
+    });
+
+builder.Services.Configure<OllamaSettings>(
+    builder.Configuration.GetSection("Ollama"));
+
 
 // Dependency Injection
 builder.Services.AddScoped<ITodoRepository, TodoRepository>();
 builder.Services.AddScoped<IUnitOfWorkFactory, UnitOfWorkFactory>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<ITodoService, TodoService>();
+//builder.Services.AddScoped<IAiSuggestionService, AiSuggestionService>();
 
 builder.Services.AddScoped<NHibernate.ISession>(sp =>
 {
@@ -62,7 +79,7 @@ if (app.Environment.IsDevelopment())
 
 // Configure the HTTP request pipeline.
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 
 app.UseAuthorization();
 

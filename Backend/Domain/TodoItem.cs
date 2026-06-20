@@ -11,4 +11,6 @@ public class TodoItem
     public virtual bool IsCompleted { get; set; }
 
     public virtual DateTime CreatedAt { get; set; }
+
+    public virtual string? Category { get; set; }
 }

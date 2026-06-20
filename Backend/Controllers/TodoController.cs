@@ -11,11 +11,18 @@ public class TodoController : ControllerBase
 {
     public readonly ILogger<TodoController> _logger;
     private readonly ITodoService _todoService;
+    private readonly IAiSuggestionService _aiSuggestionService;
+    private readonly IAiBulkActionService _aiBulkActionService;
 
-    public TodoController(ILogger<TodoController> logger, ITodoService todoService)
+    public TodoController(ILogger<TodoController> logger, 
+        ITodoService todoService, 
+        IAiSuggestionService aiSuggestionService,
+        IAiBulkActionService aiBulkActionService)
     {
         _logger = logger;
         _todoService = todoService;
+        _aiSuggestionService = aiSuggestionService;
+        _aiBulkActionService = aiBulkActionService;
     }
     // =========================
     // GET: api/todo
@@ -147,5 +154,48 @@ public class TodoController : ControllerBase
         {
             return StatusCode(500, $"An error occurred while creating the todo: {ex.Message}");
         }
+    }
+
+
+    [HttpPost("suggest")]
+    public async Task<IActionResult> Suggest([FromBody] AiSuggestionRequest request)
+    {
+        if (string.IsNullOrWhiteSpace(request.TodoTitle))
+            return BadRequest();
+
+        var response = await _aiSuggestionService.SuggestAsync(request.TodoTitle);
+
+        return Ok(response);
+    }
+
+    [HttpPost("bulk/preview")]
+    public async Task<IActionResult> PreviewBulkAction([FromBody] AiBulkActionRequest request)
+    {
+        if (string.IsNullOrWhiteSpace(request.Command))
+        {
+            return BadRequest();
+        }
+
+        var parsedAction = await _aiBulkActionService.ParseAsync(request.Command);
+
+        if (!parsedAction.Success)
+        {
+            return BadRequest(parsedAction);
+        }
+
+        var preview = await _todoService.PreviewBulkActionAsync(parsedAction);
+
+        return Ok(preview);
+    }
+
+    [HttpPost("bulk/execute")]
+    public async Task<IActionResult> ExecuteBulkAction([FromBody] AiBulkActionResponse action)
+    {
+        var affectedCount = await _todoService.ExecuteBulkActionAsync(action);
+
+        return Ok(new
+        {
+            affectedCount
+        });
     }
 }

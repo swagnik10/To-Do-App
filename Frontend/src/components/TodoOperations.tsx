@@ -9,6 +9,7 @@ import EditTodoDialog from './EditTodoDialog'
 import AddTodoDialog from './AddToDoDialog'
 import Pagination from './Pagination'
 import todoBackground from '../../assets/todo-background.jpg'
+import AiBulkActionDialog from './AiBulkActionDialog'
 
 function TodoOperations() {
   const [searchText, setSearchText] = useState('')
@@ -21,6 +22,7 @@ function TodoOperations() {
   const [selectedTodoId, setSelectedTodoId] = useState<string | null>(null)
   const [selectedTodo, setSelectedTodo] = useState<Todo | null>(null)
   const [filter, setFilter] = useState<'all' | 'active' | 'completed'>('all')
+  const [showAiBulkDialog, setShowAiBulkDialog] = useState(false)
 
   const ITEMS_PER_PAGE = 5
 
@@ -61,7 +63,7 @@ function TodoOperations() {
     currentPage * ITEMS_PER_PAGE
   )
 
-  const handleAddTodo = (inputText: string) => {
+  const handleAddTodo = (inputText: string, category: string | null) => {
     if (!inputText.trim()) return
 
     dispatch(
@@ -69,7 +71,8 @@ function TodoOperations() {
         id: nanoid(),
         text: inputText.trim(),
         createdTime: new Date().toISOString(),
-        isCompleted: false
+        isCompleted: false,
+        category: category ?? 'Other'
       })
     )
     closeAddDialog()
@@ -194,13 +197,23 @@ function TodoOperations() {
 
               </div>
 
-              {/* Add Todo */}
-              <button
-                onClick={() => setShowAddDialog(true)}
-                className="bg-green-500 text-white px-5 py-2 rounded-lg cursor-pointer"
-              >
-                + Add Todo
-              </button>
+              <div className="flex gap-2">
+
+                <button
+                  onClick={() => setShowAiBulkDialog(true)}
+                  className="bg-purple-600 text-white px-5 py-2 rounded-lg cursor-pointer"
+                >
+                  AI Bulk Action
+                </button>
+
+                <button
+                  onClick={() => setShowAddDialog(true)}
+                  className="bg-green-500 text-white px-5 py-2 rounded-lg cursor-pointer"
+                >
+                  + Add Todo
+                </button>
+
+              </div>
 
             </div>
 
@@ -236,6 +249,10 @@ function TodoOperations() {
                     {todo.text}
                   </span>
 
+                </div>
+
+                <div className="flex-1 text-center">
+                  {todo.category ?? 'Other'}
                 </div>
 
                 {/* Middle */}
@@ -314,6 +331,12 @@ function TodoOperations() {
             currentPage={currentPage}
             totalPages={totalPages}
             onPageChange={setCurrentPage}
+          />
+
+          <AiBulkActionDialog
+            isOpen={showAiBulkDialog}
+            onClose={() => setShowAiBulkDialog(false)}
+            onExecuted={() => dispatch(fetchTodosAsync())}
           />
 
         </div>
