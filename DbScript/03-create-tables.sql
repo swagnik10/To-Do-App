@@ -16,7 +16,8 @@ BEGIN
         TodoId VARCHAR(200) NOT NULL,
         TodoTitle VARCHAR(200) NOT NULL,
         IsCompleted BIT NOT NULL DEFAULT 0,
-        CreatedAt DATETIME DEFAULT GETDATE()
+        CreatedAt DATETIME DEFAULT GETDATE(),
+        Category VARCHAR(50) NULL
 
         CONSTRAINT PK_TodoItem
             PRIMARY KEY (Id, TodoId)

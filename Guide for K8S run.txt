@@ -38,3 +38,14 @@ Open a terminal and run this command
 
 
 Note: To check more details see -> ./Commands and FLow Architecture/todo-app k8s command.txt 
+
+
+For ollama LLM 
+
+    kubectl apply -f ollama-pvc.yaml
+    kubectl apply -f ollama-deployment.yaml
+    kubectl apply -f ollama-service.yaml
+
+    after deployments pull the phi3:mini
+
+    kubectl exec -it <ollama-pod> -- ollama pull phi3:mini
