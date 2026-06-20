@@ -31,6 +31,11 @@ public class TodoItemMap : ClassMap<TodoItem>
 
         Map(x => x.CreatedAt)
             .Column("CreatedAt");
+
+        Map(x => x.Category)
+        .Column("Category")
+        .Length(50)
+        .Nullable();
     }
 }
 

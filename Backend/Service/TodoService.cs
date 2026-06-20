@@ -1,5 +1,4 @@
 ﻿using Backend.DbConncetion;
-using Backend.Domain;
 using Backend.Dtos;
 using Backend.Repositories;
 
@@ -51,6 +50,7 @@ public class TodoService : ITodoService
 
             existing.TodoTitle = item.TodoTitle ?? existing.TodoTitle;
             existing.IsCompleted = item.IsCompleted ?? existing.IsCompleted;
+            existing.Category = item.Category ?? existing.Category;
 
             var todoItem = await _repo.UpdateAsync(existing);
 

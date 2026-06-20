@@ -1,0 +1,42 @@
+Check winget install in your machine or not. If not first install that
+
+    winget --version # some version need to come
+
+Now install Ollama (a free, open-source tool that allows you to run Large Language Models (LLMs))
+
+    winget install Ollama.Ollama
+
+    open another terminal -> ollama --version
+
+Pull llama3
+
+    Open Windows Powershell & run
+
+        ollama pull llama3
+
+    Check the llma3 sucessfully pulled or not
+
+        ollama list
+        ollama show llama3
+
+    Run llma3
+
+         ollama run llama3
+         ctrl + d to exit 
+
+    To stop the Models
+
+        ollama stop llama3
+
+    To stop the server -> close from windows Click the ^ icon to show hidden icons. Find the Ollama icon. Right-click it. Select Quit Ollama.
+
+
+    delete the llama3 -> ollama rm llama3
+
+This llama3 is a heavy tool near about 5gb. Which is very memory comsuming so i downgraded to  Phi-3 Mini
+
+    ollama pull phi3:mini
+
+
+
+

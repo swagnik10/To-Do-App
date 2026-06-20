@@ -11,11 +11,13 @@ public class TodoController : ControllerBase
 {
     public readonly ILogger<TodoController> _logger;
     private readonly ITodoService _todoService;
+    private readonly IAiSuggestionService _aiSuggestionService;
 
-    public TodoController(ILogger<TodoController> logger, ITodoService todoService)
+    public TodoController(ILogger<TodoController> logger, ITodoService todoService, IAiSuggestionService aiSuggestionService)
     {
         _logger = logger;
         _todoService = todoService;
+        _aiSuggestionService = aiSuggestionService;
     }
     // =========================
     // GET: api/todo
@@ -147,5 +149,19 @@ public class TodoController : ControllerBase
         {
             return StatusCode(500, $"An error occurred while creating the todo: {ex.Message}");
         }
+    }
+
+
+    [HttpPost("suggest")]
+    public async Task<IActionResult> Suggest(
+    [FromBody] AiSuggestionRequest request)
+    {
+        if (string.IsNullOrWhiteSpace(request.TodoTitle))
+            return BadRequest();
+
+        var response =
+            await _aiSuggestionService.SuggestAsync(request.TodoTitle);
+
+        return Ok(response);
     }
 }
