@@ -96,7 +96,8 @@ public class TodoService : ITodoService
             Action = action.Action,
             MatchCount = matchingTodos.Count,
             MatchingTodos =
-                _mapper.Map<List<ToDoItemDto>>(matchingTodos)
+                _mapper.Map<List<ToDoItemDto>>(matchingTodos),
+            Category = action.Category
         };
     }
 

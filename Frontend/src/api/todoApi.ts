@@ -69,5 +69,32 @@ export const getAiSuggestionApi = async (
   return response.data
 }
 
+export const previewBulkActionApi = async (
+  command: string
+) => {
+  const response = await api.post(
+    '/bulk/preview',
+    {
+      command
+    }
+  )
+
+  return response.data
+}
+
+export const executeBulkActionApi = async (
+  action: {
+    action: string
+    category: string | null
+  }
+) => {
+  const response = await api.post(
+    '/bulk/execute',
+    action
+  )
+
+  return response.data
+}
+
 
 export default api
