@@ -36,7 +36,13 @@ builder.Services.AddCors(options =>
 builder.Services.AddHttpClient<IAiSuggestionService, AiSuggestionService>(
     client =>
     {
-        client.Timeout = TimeSpan.FromMinutes(1);
+        client.Timeout = TimeSpan.FromMinutes(2);
+    });
+
+builder.Services.AddHttpClient<IAiBulkActionService, AiBulkActionService>(
+    client =>
+    {
+        client.Timeout = TimeSpan.FromMinutes(10);
     });
 
 builder.Services.Configure<OllamaSettings>(

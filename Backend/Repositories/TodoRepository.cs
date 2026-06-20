@@ -137,4 +137,21 @@ public class TodoRepository : ITodoRepository
             throw;
         }
     }
+
+    public async Task<List<TodoItem>> FindMatchingTodosAsync(string? category, bool? isCompleted)
+    {
+        var query = _session.Query<TodoItem>();
+
+        if (!string.IsNullOrWhiteSpace(category))
+        {
+            query = query.Where(x => x.Category == category);
+        }
+
+        if (isCompleted.HasValue)
+        {
+            query = query.Where(x => x.IsCompleted == isCompleted.Value);
+        }
+
+        return await query.ToListAsync();
+    }
 }
