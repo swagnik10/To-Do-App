@@ -12,6 +12,16 @@ public class AiSuggestionService : IAiSuggestionService
     private readonly OllamaSettings _settings;
     private readonly ILogger<AiSuggestionService> _logger;
 
+    private static readonly HashSet<string> AllowedCategories =
+    [
+        "Work",
+        "Personal",
+        "Health",
+        "Shopping",
+        "Urgent",
+        "Other"
+    ];
+
     public AiSuggestionService(
         HttpClient httpClient,
         IOptions<OllamaSettings> settings,
@@ -27,22 +37,35 @@ public class AiSuggestionService : IAiSuggestionService
         try
         {
             var prompt = $$"""
-                        You are a todo assistant.
+                You are a todo assistant.
 
-                        Analyze the user's todo title.
+                Analyze the user's todo title.
 
-                        Return ONLY valid JSON.
+                Return ONLY valid JSON.
 
-                        Response format:
+                You MUST choose EXACTLY ONE category from:
 
-                        {
-                          "suggestedTitle": "",
-                          "category": ""
-                        }
+                Work
+                Personal
+                Health
+                Shopping
+                Urgent
+                Other
 
-                        User title:
-                        {{title}}
-                        """;
+                Do not invent new categories.
+
+                Return ONLY valid JSON.
+
+                Response Json format:
+
+                {
+                  "suggestedTitle": "",
+                  "category": ""
+                }
+
+                User title:
+                {{title}}
+                """;
 
             var request = new OllamaGenerateRequest
             {
@@ -64,24 +87,17 @@ public class AiSuggestionService : IAiSuggestionService
 
             response.EnsureSuccessStatusCode();
 
-            var responseContent =
-                await response.Content.ReadAsStringAsync();
+            var responseContent = await response.Content.ReadAsStringAsync();
 
-            var ollamaResponse =
-                JsonSerializer.Deserialize<OllamaGenerateResponse>(
-                    responseContent);
+            var ollamaResponse = JsonSerializer.Deserialize<OllamaGenerateResponse>(responseContent);
 
-            _logger.LogInformation(
-                "Raw Ollama Response: {Response}",
-                ollamaResponse?.Response);
+            _logger.LogInformation("Raw Ollama Response: {Response}", ollamaResponse?.Response);
 
             if (string.IsNullOrWhiteSpace(ollamaResponse?.Response))
             {
-                return new AiSuggestionResponse
-                {
-                    SuggestedTitle = title,
-                    Category = "Other"
-                };
+                return CreateFallbackResponse(
+                    title,
+                    "Empty response received from AI.");
             }
 
             var suggestion =
@@ -94,27 +110,74 @@ public class AiSuggestionService : IAiSuggestionService
 
             if (suggestion == null)
             {
-                return new AiSuggestionResponse
-                {
-                    SuggestedTitle = title,
-                    Category = "Other"
-                };
+                return CreateFallbackResponse(
+                    title,
+                    "Unable to parse AI response.");
             }
 
+            if (!AllowedCategories.Contains(suggestion.Category))
+            {
+                suggestion.Category = "Other";
+            }
+
+            suggestion.Success = true;
+            suggestion.Message = null;
+
             return suggestion;
+        }
+        catch (TaskCanceledException ex)
+        {
+            _logger.LogWarning(
+                ex,
+                "AI suggestion request timed out.");
+
+            return CreateFallbackResponse(
+                title,
+                "AI request timed out.");
+        }
+        catch (HttpRequestException ex)
+        {
+            _logger.LogError(
+                ex,
+                "Unable to connect to Ollama.");
+
+            return CreateFallbackResponse(
+                title,
+                "AI service unavailable.");
+        }
+        catch (JsonException ex)
+        {
+            _logger.LogError(
+                ex,
+                "Failed to parse AI response.");
+
+            return CreateFallbackResponse(
+                title,
+                "Invalid AI response format.");
         }
         catch (Exception ex)
         {
             _logger.LogError(
                 ex,
-                "Error generating AI suggestion for title: {Title}",
+                "Unexpected error generating suggestion for title: {Title}",
                 title);
 
-            return new AiSuggestionResponse
-            {
-                SuggestedTitle = title,
-                Category = "Other"
-            };
+            return CreateFallbackResponse(
+                title,
+                "Unexpected AI error.");
         }
+    }
+
+    private static AiSuggestionResponse CreateFallbackResponse(
+        string originalTitle,
+        string message)
+    {
+        return new AiSuggestionResponse
+        {
+            SuggestedTitle = originalTitle,
+            Category = "Other",
+            Success = false,
+            Message = message
+        };
     }
 }

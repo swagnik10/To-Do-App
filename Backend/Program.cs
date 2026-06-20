@@ -33,7 +33,11 @@ builder.Services.AddCors(options =>
         });
 });
 
-builder.Services.AddHttpClient<IAiSuggestionService, AiSuggestionService>();
+builder.Services.AddHttpClient<IAiSuggestionService, AiSuggestionService>(
+    client =>
+    {
+        client.Timeout = TimeSpan.FromMinutes(1);
+    });
 
 builder.Services.Configure<OllamaSettings>(
     builder.Configuration.GetSection("Ollama"));
