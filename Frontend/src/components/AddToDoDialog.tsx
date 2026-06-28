@@ -80,29 +80,33 @@ function AddTodoDialog({
     if (!isOpen) return null
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-            <div className="bg-white rounded-lg p-6 w-96">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+
+            <div className="bg-white rounded-xl shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto p-5 sm:p-6">
 
                 {/* Header */}
-                <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-lg font-semibold">
+                <div className="flex items-center justify-between mb-6">
+
+                    <h2 className="text-xl font-semibold">
                         Add Todo
                     </h2>
 
                     <button
                         onClick={handleClose}
                         disabled={isLoadingAi}
-                        className={`${isLoadingAi
-                            ? 'cursor-not-allowed opacity-50'
-                            : 'cursor-pointer'
+                        className={`text-xl ${isLoadingAi
+                                ? 'cursor-not-allowed opacity-50'
+                                : 'cursor-pointer hover:text-red-500'
                             }`}
                     >
                         ✕
                     </button>
+
                 </div>
 
-                {/* Title */}
+                {/* Todo Title */}
                 <div>
+
                     <label className="block mb-2 font-medium">
                         Todo Title
                     </label>
@@ -115,12 +119,14 @@ function AddTodoDialog({
                             setInputText(e.target.value)
                         }
                         placeholder="Enter todo title..."
-                        className="w-full rounded border p-2"
+                        className="w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
                     />
+
                 </div>
 
                 {/* Category */}
-                <div className="mt-4">
+                <div className="mt-5">
+
                     <label className="block mb-2 font-medium">
                         Category
                     </label>
@@ -131,9 +137,9 @@ function AddTodoDialog({
                         onChange={(e) =>
                             setCategory(e.target.value)
                         }
-                        className="w-full rounded border p-2"
+                        className="w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
                     >
-                        {categories.map(cat => (
+                        {categories.map((cat) => (
                             <option
                                 key={cat}
                                 value={cat}
@@ -142,9 +148,10 @@ function AddTodoDialog({
                             </option>
                         ))}
                     </select>
+
                 </div>
 
-                {/* AI Suggestion */}
+                {/* AI Button */}
                 <button
                     type="button"
                     onClick={handleAiSuggestion}
@@ -152,9 +159,9 @@ function AddTodoDialog({
                         !inputText.trim() ||
                         isLoadingAi
                     }
-                    className={`mt-4 w-full rounded px-4 py-2 text-white ${!inputText.trim() || isLoadingAi
-                        ? 'bg-gray-400 cursor-not-allowed'
-                        : 'bg-purple-600 cursor-pointer hover:bg-purple-700'
+                    className={`mt-5 w-full rounded-lg px-4 py-3 text-white transition ${!inputText.trim() || isLoadingAi
+                            ? 'bg-gray-400 cursor-not-allowed'
+                            : 'bg-purple-600 hover:bg-purple-700 cursor-pointer'
                         }`}
                 >
                     {isLoadingAi
@@ -162,22 +169,22 @@ function AddTodoDialog({
                         : 'Get AI Suggestion'}
                 </button>
 
-                {/* Optional AI Status */}
+                {/* AI Status */}
                 {aiMessage && (
-                    <div className="mt-3 text-sm text-gray-600">
+                    <div className="mt-3 rounded-lg bg-gray-100 p-3 text-sm text-gray-700 break-words">
                         {aiMessage}
                     </div>
                 )}
 
                 {/* Footer */}
-                <div className="mt-6 flex justify-end gap-2">
+                <div className="mt-6 flex flex-col-reverse sm:flex-row sm:justify-end gap-3">
 
                     <button
                         onClick={handleClose}
                         disabled={isLoadingAi}
-                        className={`px-4 py-2 border rounded ${isLoadingAi
+                        className={`w-full sm:w-auto px-5 py-2 border rounded-lg ${isLoadingAi
                                 ? 'cursor-not-allowed opacity-50'
-                                : 'cursor-pointer'
+                                : 'cursor-pointer hover:bg-gray-100'
                             }`}
                     >
                         Cancel
@@ -185,10 +192,13 @@ function AddTodoDialog({
 
                     <button
                         onClick={handleSave}
-                        disabled={!inputText.trim() || isLoadingAi}
-                        className={`rounded px-4 py-2 text-white ${!inputText.trim() || isLoadingAi
-                            ? 'cursor-not-allowed opacity-50'
-                            : 'cursor-pointer bg-blue-500'
+                        disabled={
+                            !inputText.trim() ||
+                            isLoadingAi
+                        }
+                        className={`w-full sm:w-auto px-5 py-2 rounded-lg text-white transition ${!inputText.trim() || isLoadingAi
+                                ? 'bg-gray-400 cursor-not-allowed'
+                                : 'bg-blue-500 hover:bg-blue-600 cursor-pointer'
                             }`}
                     >
                         Save
@@ -197,6 +207,7 @@ function AddTodoDialog({
                 </div>
 
             </div>
+
         </div>
     )
 }

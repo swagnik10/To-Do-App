@@ -150,22 +150,21 @@ function AiBulkActionDialog({
     }
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
 
-            <div className="bg-white rounded-lg p-6 w-[700px] max-h-[80vh] overflow-auto">
+            <div className="bg-white rounded-xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto p-5 sm:p-6">
 
                 {/* Header */}
-                <div className="flex justify-between items-center mb-4">
+                <div className="flex items-center justify-between mb-6">
 
-                    <h2 className="text-lg font-semibold">
+                    <h2 className="text-xl font-semibold">
                         AI Bulk Actions
                     </h2>
 
                     <button
                         onClick={handleClose}
                         disabled={isLoading}
-                        className={`transition
-                            ${isLoading
+                        className={`text-xl transition ${isLoading
                                 ? 'cursor-not-allowed opacity-50'
                                 : 'cursor-pointer hover:text-red-500'
                             }`}
@@ -188,111 +187,117 @@ function AiBulkActionDialog({
                         disabled={isLoading}
                         onChange={handleCommandChange}
                         placeholder="Delete all shopping todos"
-                        className="w-full border rounded p-2"
+                        className="w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
                     />
 
                 </div>
 
                 {/* Preview Button */}
-                {
-                    !preview && (
-                        <button
-                            onClick={handlePreview}
-                            disabled={
-                                !command.trim() ||
-                                isLoading
-                            }
-                            className={`mt-4 w-full rounded px-4 py-2 text-white transition
-                                ${!command.trim() || isLoading
-                                    ? 'bg-gray-400 cursor-not-allowed'
-                                    : 'bg-purple-600 hover:bg-purple-700 cursor-pointer'
-                                }`}
-                        >
-                            {
-                                isLoading
-                                    ? 'Generating Preview...'
-                                    : 'Preview Action'
-                            }
-                        </button>
-                    )
-                }
+                {!preview && (
+                    <button
+                        onClick={handlePreview}
+                        disabled={!command.trim() || isLoading}
+                        className={`mt-5 w-full rounded-lg px-4 py-3 text-white transition ${!command.trim() || isLoading
+                                ? 'bg-gray-400 cursor-not-allowed'
+                                : 'bg-purple-600 hover:bg-purple-700 cursor-pointer'
+                            }`}
+                    >
+                        {isLoading
+                            ? 'Generating Preview...'
+                            : 'Preview Action'}
+                    </button>
+                )}
 
                 {/* Message */}
-                {
-                    message && (
-                        <div className="mt-3 text-sm text-gray-600">
-                            {message}
-                        </div>
-                    )
-                }
+                {message && (
+                    <div className="mt-4 rounded-lg bg-gray-100 p-3 text-sm text-gray-700 break-words">
+                        {message}
+                    </div>
+                )}
 
-                {/* Preview Result */}
-                {
-                    preview && (
-                        <div className="mt-6 border rounded p-4">
+                {/* Preview */}
+                {preview && (
 
-                            <div className="mb-2">
-                                <strong>Action:</strong>{' '}
-                                {preview.action}
+                    <div className="mt-6 rounded-xl border p-4">
+
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-5">
+
+                            <div>
+                                <div className="text-sm text-gray-500">
+                                    Action
+                                </div>
+
+                                <div className="font-semibold capitalize">
+                                    {preview.action}
+                                </div>
                             </div>
 
-                            <div className="mb-2">
-                                <strong>Category:</strong>{' '}
-                                {preview.category ?? 'All'}
+                            <div>
+                                <div className="text-sm text-gray-500">
+                                    Category
+                                </div>
+
+                                <div className="font-semibold">
+                                    {preview.category ?? 'All'}
+                                </div>
                             </div>
 
-                            <div className="mb-4">
-                                <strong>Matching Todos:</strong>{' '}
-                                {preview.matchCount}
+                            <div>
+                                <div className="text-sm text-gray-500">
+                                    Matching Todos
+                                </div>
+
+                                <div className="font-semibold">
+                                    {preview.matchCount}
+                                </div>
                             </div>
-
-                            {
-                                preview.action === 'select' && (
-                                    <div className="mb-4 text-blue-600 font-medium">
-                                        Preview only. No changes will be made.
-                                    </div>
-                                )
-                            }
-
-                            {
-                                preview.matchCount > 0 && (
-                                    <div className="max-h-64 overflow-auto">
-
-                                        {
-                                            preview.matchingTodos.map(
-                                                todo => (
-                                                    <div
-                                                        key={todo.todoId}
-                                                        className="border-b py-2"
-                                                    >
-                                                        <div>
-                                                            {todo.todoTitle}
-                                                        </div>
-
-                                                        <div className="text-sm text-gray-500">
-                                                            {todo.category ?? 'Other'}
-                                                        </div>
-                                                    </div>
-                                                )
-                                            )
-                                        }
-
-                                    </div>
-                                )
-                            }
 
                         </div>
-                    )
-                }
+
+                        {preview.action === 'select' && (
+                            <div className="mb-4 rounded-lg bg-blue-50 border border-blue-200 text-blue-700 p-3">
+                                Preview only. No changes will be made.
+                            </div>
+                        )}
+
+                        {preview.matchCount > 0 && (
+
+                            <div className="max-h-72 overflow-y-auto rounded-lg border">
+
+                                {preview.matchingTodos.map((todo) => (
+
+                                    <div
+                                        key={todo.todoId}
+                                        className="border-b last:border-b-0 p-3 hover:bg-gray-50"
+                                    >
+
+                                        <div className="font-medium break-words">
+                                            {todo.todoTitle}
+                                        </div>
+
+                                        <div className="mt-1 text-sm text-gray-500">
+                                            {todo.category ?? 'Other'}
+                                        </div>
+
+                                    </div>
+
+                                ))}
+
+                            </div>
+
+                        )}
+
+                    </div>
+
+                )}
 
                 {/* Footer */}
-                <div className="mt-6 flex justify-end gap-2">
+                <div className="mt-6 flex flex-col-reverse sm:flex-row sm:justify-end gap-3">
 
                     <button
                         onClick={handleClose}
                         disabled={isLoading}
-                        className={`px-4 py-2 border rounded transition
-                            ${isLoading
+                        className={`w-full sm:w-auto px-5 py-2 border rounded-lg transition ${isLoading
                                 ? 'cursor-not-allowed opacity-50'
                                 : 'cursor-pointer hover:bg-gray-100'
                             }`}
@@ -303,17 +308,14 @@ function AiBulkActionDialog({
                     <button
                         onClick={handleExecute}
                         disabled={!canExecute || isLoading}
-                        className={`px-4 py-2 rounded text-white transition
-                            ${canExecute && !isLoading
+                        className={`w-full sm:w-auto px-5 py-2 rounded-lg text-white transition ${canExecute && !isLoading
                                 ? 'bg-red-500 hover:bg-red-600 cursor-pointer'
                                 : 'bg-gray-400 cursor-not-allowed'
                             }`}
                     >
-                        {
-                            isLoading && preview
-                                ? 'Executing...'
-                                : 'Confirm Action'
-                        }
+                        {isLoading && preview
+                            ? 'Executing...'
+                            : 'Confirm Action'}
                     </button>
 
                 </div>

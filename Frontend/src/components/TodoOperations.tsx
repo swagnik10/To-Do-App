@@ -150,109 +150,117 @@ function TodoOperations() {
     <div
       className="min-h-screen bg-cover bg-center bg-no-repeat"
       style={{
-        backgroundImage:
-          `url(${todoBackground})`
+        backgroundImage: `url(${todoBackground})`
       }}
     >
       <div className="min-h-screen bg-black/60">
 
-        <div className="max-w-6xl mx-auto px-6 py-10">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
 
           {/* Header */}
-          <h1 className="text-5xl font-bold text-white text-center mb-10">
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white text-center mb-8">
             Todo App
           </h1>
 
           {/* Toolbar */}
           <div className="bg-white rounded-xl shadow-lg p-4 mb-6">
 
-            <div className="flex items-center justify-between gap-4">
+            <div className="space-y-4">
 
-              {/* Search */}
-              <div className="w-1/3">
-                <input
-                  type="text"
-                  value={searchText}
-                  onChange={(e) => setSearchText(e.target.value)}
-                  placeholder="Search todos..."
-                  className="w-full border rounded-lg px-4 py-2"
-                />
+              {/* Top Row */}
+              <div className="flex flex-col lg:flex-row gap-4">
+
+                {/* Search */}
+                <div className="flex-1">
+                  <input
+                    type="text"
+                    value={searchText}
+                    onChange={(e) => setSearchText(e.target.value)}
+                    placeholder="Search todos..."
+                    className="w-full border rounded-lg px-4 py-2"
+                  />
+                </div>
+
+                {/* Filter Buttons */}
+                <div className="flex flex-wrap sm:flex-nowrap justify-center gap-2">
+
+                  <button
+                    onClick={() => setFilter('all')}
+                    className={`px-4 py-2 rounded-lg ${filter === 'all'
+                      ? 'bg-blue-500 text-white'
+                      : 'border'
+                      }`}
+                  >
+                    All
+                  </button>
+
+                  <button
+                    onClick={() => setFilter('active')}
+                    className={`px-4 py-2 rounded-lg ${filter === 'active'
+                      ? 'bg-blue-500 text-white'
+                      : 'border'
+                      }`}
+                  >
+                    Active
+                  </button>
+
+                  <button
+                    onClick={() => setFilter('completed')}
+                    className={`px-4 py-2 rounded-lg ${filter === 'completed'
+                      ? 'bg-blue-500 text-white'
+                      : 'border'
+                      }`}
+                  >
+                    Completed
+                  </button>
+
+                </div>
+
               </div>
 
-              {/* Filters */}
-              <div className="flex gap-2">
+              {/* Bottom Row */}
+              <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
 
-                <button
-                  onClick={() => setFilter('all')}
-                  className={`px-4 py-2 rounded-lg ${filter === 'all'
-                    ? 'bg-blue-500 text-white'
-                    : 'border'
-                    }`}
-                >
-                  All
-                </button>
-
-                <button
-                  onClick={() => setFilter('active')}
-                  className={`px-4 py-2 rounded-lg ${filter === 'active'
-                    ? 'bg-blue-500 text-white'
-                    : 'border'
-                    }`}
-                >
-                  Active
-                </button>
-
-                <button
-                  onClick={() => setFilter('completed')}
-                  className={`px-4 py-2 rounded-lg ${filter === 'completed'
-                    ? 'bg-blue-500 text-white'
-                    : 'border'
-                    }`}
-                >
-                  Completed
-                </button>
-
-              </div>
-
-              {/* Category Filter */}
-              <div>
-                <select
-                  value={categoryFilter}
-                  onChange={(e) =>
-                    setCategoryFilter(e.target.value)
-                  }
-                  className="border rounded-lg px-4 py-2"
-                >
-                  <option value="all">
-                    All Categories
-                  </option>
-
-                  {categories.map((category) => (
-                    <option
-                      key={category}
-                      value={category}
-                    >
-                      {category}
+                {/* Category */}
+                <div className="w-full md:w-64">
+                  <select
+                    value={categoryFilter}
+                    onChange={(e) => setCategoryFilter(e.target.value)}
+                    className="w-full border rounded-lg px-4 py-2"
+                  >
+                    <option value="all">
+                      All Categories
                     </option>
-                  ))}
-                </select>
-              </div>
 
-              <div className="flex gap-2">
+                    {categories.map((category) => (
+                      <option
+                        key={category}
+                        value={category}
+                      >
+                        {category}
+                      </option>
+                    ))}
+                  </select>
+                </div>
 
-                <button
-                  onClick={() => setShowAiBulkDialog(true)}
-                  className="bg-purple-600 text-white px-5 py-2 rounded-lg cursor-pointer"
-                >
-                  AI Bulk Action
-                </button>
+                {/* Action Buttons */}
+                <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
 
-                <button
-                  onClick={() => setShowAddDialog(true)}
-                  className="bg-green-500 text-white px-5 py-2 rounded-lg cursor-pointer"
-                >
-                  + Add Todo
-                </button>
+                  <button
+                    onClick={() => setShowAiBulkDialog(true)}
+                    className="w-full sm:w-auto bg-purple-600 text-white px-5 py-2 rounded-lg hover:bg-purple-700 transition"
+                  >
+                    AI Bulk Action
+                  </button>
+
+                  <button
+                    onClick={() => setShowAddDialog(true)}
+                    className="w-full sm:w-auto bg-green-500 text-white px-5 py-2 rounded-lg hover:bg-green-600 transition"
+                  >
+                    + Add Todo
+                  </button>
+
+                </div>
 
               </div>
 
@@ -266,23 +274,21 @@ function TodoOperations() {
             {paginatedTodos.map((todo) => (
               <div
                 key={todo.id}
-                className="flex items-center px-6 py-4 border-b last:border-b-0 hover:bg-gray-50"
+                className="flex flex-col lg:flex-row lg:items-center gap-4 px-4 sm:px-6 py-4 border-b last:border-b-0 hover:bg-gray-50"
               >
 
-                {/* Left */}
+                {/* Todo */}
                 <div className="flex items-center gap-3 flex-1">
 
                   <input
                     type="checkbox"
                     checked={todo.isCompleted}
-                    onChange={() =>
-                      toggleTodo(todo)
-                    }
+                    onChange={() => toggleTodo(todo)}
                     className="h-5 w-5"
                   />
 
                   <span
-                    className={`font-medium ${todo.isCompleted
+                    className={`flex-1 font-medium break-words ${todo.isCompleted
                       ? 'line-through text-gray-400'
                       : 'text-gray-800'
                       }`}
@@ -292,19 +298,18 @@ function TodoOperations() {
 
                 </div>
 
-                <div className="flex-1 text-center">
+                {/* Category */}
+                <div className="text-left lg:text-center lg:w-40 text-sm font-medium text-blue-600">
                   {todo.category ?? 'Other'}
                 </div>
 
-                {/* Middle */}
-                <div className="flex-1 text-center text-sm text-gray-500">
-                  {new Date(
-                    todo.createdTime
-                  ).toLocaleString()}
+                {/* Date */}
+                <div className="text-left lg:text-center lg:w-56 text-sm text-gray-500">
+                  {new Date(todo.createdTime).toLocaleString()}
                 </div>
 
-                {/* Right */}
-                <div className="flex-1 flex justify-end gap-2 ml-8">
+                {/* Actions */}
+                <div className="flex gap-2 lg:justify-end">
 
                   <button
                     disabled={todo.isCompleted}
@@ -312,8 +317,8 @@ function TodoOperations() {
                       setSelectedTodo(todo)
                       setShowEditDialog(true)
                     }}
-                    className={`px-4 py-2 rounded text-white ${!todo.isCompleted
-                      ? 'bg-blue-500 cursor-pointer'
+                    className={`flex-1 sm:flex-none px-4 py-2 rounded text-white ${!todo.isCompleted
+                      ? 'bg-blue-500 hover:bg-blue-600'
                       : 'bg-gray-400 cursor-not-allowed'
                       }`}
                   >
@@ -325,7 +330,7 @@ function TodoOperations() {
                       setSelectedTodoId(todo.id)
                       setShowDeleteDialog(true)
                     }}
-                    className="bg-red-500 text-white px-4 py-2 rounded cursor-pointer"
+                    className="flex-1 sm:flex-none bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded"
                   >
                     Delete
                   </button>
@@ -342,12 +347,6 @@ function TodoOperations() {
             )}
 
           </div>
-
-          {/* Dialogs
-            * This pattern is called "lifting state up". 
-            * We lift the state of the delete dialog to the parent component (Todo) so that it can control when to show the dialog and which todo is being deleted. 
-            * The DeleteConfirmationDialog component is a child component that receives props from the parent to determine its behavior.  
-            * */}
 
           <AddTodoDialog
             isOpen={showAddDialog}
@@ -384,7 +383,6 @@ function TodoOperations() {
 
       </div>
     </div>
-
   )
 }
 
