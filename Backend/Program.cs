@@ -45,8 +45,8 @@ builder.Services.AddHttpClient<IAiBulkActionService, AiBulkActionService>(
         client.Timeout = TimeSpan.FromMinutes(10);
     });
 
-builder.Services.Configure<OllamaSettings>(
-    builder.Configuration.GetSection("Ollama"));
+builder.Services.Configure<GeminiSettings>(
+    builder.Configuration.GetSection("Gemini"));
 
 
 // Dependency Injection

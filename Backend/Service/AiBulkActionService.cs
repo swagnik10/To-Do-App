@@ -9,7 +9,7 @@ namespace Backend.Service;
 public class AiBulkActionService : IAiBulkActionService
 {
     private readonly HttpClient _httpClient;
-    private readonly OllamaSettings _settings;
+    private readonly GeminiSettings _settings;
     private readonly ILogger<AiBulkActionService> _logger;
 
     private static readonly HashSet<string> AllowedCategories =
@@ -32,7 +32,7 @@ public class AiBulkActionService : IAiBulkActionService
 
     public AiBulkActionService(
         HttpClient httpClient,
-        IOptions<OllamaSettings> settings,
+        IOptions<GeminiSettings> settings,
         ILogger<AiBulkActionService> logger)
     {
         _httpClient = httpClient;
@@ -45,195 +45,104 @@ public class AiBulkActionService : IAiBulkActionService
         try
         {
             var prompt = $$"""
-                            You are a todo command parser.
+            You are a todo command parser.
 
-                            Your job is to convert a user's natural language command into structured JSON.
+            Your job is to convert a user's natural language command into structured JSON.
 
-                            Supported actions:
+            Supported actions:
 
-                            - complete
-                            - uncomplete
-                            - delete
-                            - select
+            - complete
+            - uncomplete
+            - delete
+            - select
 
-                            Supported categories:
+            Supported categories:
 
-                            - Work
-                            - Personal
-                            - Health
-                            - Shopping
-                            - Urgent
-                            - Other
+            - Work
+            - Personal
+            - Health
+            - Shopping
+            - Urgent
+            - Other
 
-                            Return ONLY valid JSON.
+            Return ONLY valid JSON.
 
-                            Rules:
+            Rules:
 
-                            1. Choose EXACTLY ONE action from:
-                               complete, uncomplete, delete, select
+            1. Choose EXACTLY ONE action from:
+               complete, uncomplete, delete, select
 
-                            2. If the command clearly means:
-                               - done, completed, finish -> complete
-                               - not done, incomplete, undo completion -> uncomplete
-                               - remove, delete -> delete
-                               - show, list, mark, select, find -> select
+            2. If the command clearly means:
+               - done, completed, finish -> complete
+               - not done, incomplete, undo completion -> uncomplete
+               - remove, delete -> delete
+               - show, list, mark, find -> select
 
-                            3. If no category is mentioned, return null for category.
+            3. If no category is mentioned, return null for category.
 
-                            4. Do NOT invent categories.
+            4. Do NOT invent categories.
 
-                            5. If the action cannot be determined with confidence, return null for action.
+            5. If the action cannot be determined with confidence, return null for action.
 
-                            6. Return ONLY JSON.
+            Response format:
 
-                            Response format:
-
-                            {
-                              "action": "",
-                              "category": null
-                            }
-
-                            Examples:
-
-                            User:
-                            Mark all shopping todos as done
-
-                            Output:
-                            {
-                              "action": "complete",
-                              "category": "Shopping"
-                            }
-
-                            User:
-                            Complete all shopping tasks
-
-                            Output:
-                            {
-                              "action": "complete",
-                              "category": "Shopping"
-                            }
-
-                            User:
-                            Delete all work tasks
-
-                            Output:
-                            {
-                              "action": "delete",
-                              "category": "Work"
-                            }
-
-                            User:
-                            Remove all urgent todos
-
-                            Output:
-                            {
-                              "action": "delete",
-                              "category": "Urgent"
-                            }
-
-                            User:
-                            Mark all shopping todos
-
-                            Output:
-                            {
-                              "action": "complete",
-                              "category": "Shopping"
-                            }
-
-                            User:
-                            Show all shopping todos
-
-                            Output:
-                            {
-                              "action": "select",
-                              "category": "Shopping"
-                            }
-
-                            User:
-                            List all personal tasks
-
-                            Output:
-                            {
-                              "action": "select",
-                              "category": "Personal"
-                            }
-
-                            User:
-                            Mark all shopping todos as not done
-
-                            Output:
-                            {
-                              "action": "uncomplete",
-                              "category": "Shopping"
-                            }
-
-                            User:
-                            Mark all work tasks as incomplete
-
-                            Output:
-                            {
-                              "action": "uncomplete",
-                              "category": "Work"
-                            }
-
-                            User:
-                            Undo completion of health tasks
-
-                            Output:
-                            {
-                              "action": "uncomplete",
-                              "category": "Health"
-                            }
-
-                            User:
-                            Delete everything
-
-                            Output:
-                            {
-                              "action": "delete",
-                              "category": null
-                            }
-
-                            User:
-                            Show all todos
-
-                            Output:
-                            {
-                              "action": "select",
-                              "category": null
-                            }
-
-                            User command:
-                            {{command}}
-                            """;
-
-            var request = new OllamaGenerateRequest
             {
-                Model = _settings.Model,
-                Prompt = prompt,
-                Stream = false
+              "action": "",
+              "category": null
+            }
+
+            User command:
+            {{command}}
+            """;
+
+            var requestBody = new
+            {
+                contents = new[]
+                {
+                new
+                {
+                    parts = new[]
+                    {
+                        new
+                        {
+                            text = prompt
+                        }
+                    }
+                }
+            },
+                generationConfig = new
+                {
+                    temperature = 0.2,
+                    responseMimeType = "application/json"
+                }
             };
 
-            var json = JsonSerializer.Serialize(request);
+            var endpoint =
+                $"https://generativelanguage.googleapis.com/v1beta/models/{_settings.Model}:generateContent?key={_settings.ApiKey}";
 
-            var content = new StringContent(
-                json,
-                Encoding.UTF8,
-                "application/json");
-
-            var response = await _httpClient.PostAsync(
-                $"{_settings.BaseUrl}/api/generate",
-                content);
+            var response = await _httpClient.PostAsJsonAsync(
+                endpoint,
+                requestBody);
 
             response.EnsureSuccessStatusCode();
 
             var responseContent = await response.Content.ReadAsStringAsync();
 
-            var ollamaResponse = JsonSerializer.Deserialize<OllamaGenerateResponse>(responseContent);
+            using var document = JsonDocument.Parse(responseContent);
 
-            _logger.LogInformation("Raw Ollama Bulk Action Response: {Response}", ollamaResponse?.Response);
+            var aiResponse =
+                document.RootElement
+                    .GetProperty("candidates")[0]
+                    .GetProperty("content")
+                    .GetProperty("parts")[0]
+                    .GetProperty("text")
+                    .GetString();
 
-            if (string.IsNullOrWhiteSpace(ollamaResponse?.Response))
+            _logger.LogInformation(
+                "Raw Gemini Bulk Action Response: {Response}",
+                aiResponse);
+
+            if (string.IsNullOrWhiteSpace(aiResponse))
             {
                 return CreateFallbackResponse(
                     "Empty response received from AI.");
@@ -241,7 +150,7 @@ public class AiBulkActionService : IAiBulkActionService
 
             var parsedAction =
                 JsonSerializer.Deserialize<AiBulkActionResponse>(
-                    ollamaResponse.Response,
+                    aiResponse,
                     new JsonSerializerOptions
                     {
                         PropertyNameCaseInsensitive = true
@@ -253,27 +162,22 @@ public class AiBulkActionService : IAiBulkActionService
                     "Unable to parse AI response.");
             }
 
-            if (string.IsNullOrWhiteSpace(
-                parsedAction.Action))
+            if (string.IsNullOrWhiteSpace(parsedAction.Action))
             {
                 return CreateFallbackResponse(
                     "Action not found.");
             }
 
-            parsedAction.Action =
-                parsedAction.Action.ToLower();
+            parsedAction.Action = parsedAction.Action.ToLowerInvariant();
 
-            if (!AllowedActions.Contains(
-                parsedAction.Action))
+            if (!AllowedActions.Contains(parsedAction.Action))
             {
                 return CreateFallbackResponse(
                     $"Unsupported action '{parsedAction.Action}'.");
             }
 
-            if (!string.IsNullOrWhiteSpace(
-                parsedAction.Category) &&
-                !AllowedCategories.Contains(
-                    parsedAction.Category))
+            if (!string.IsNullOrWhiteSpace(parsedAction.Category) &&
+                !AllowedCategories.Contains(parsedAction.Category))
             {
                 parsedAction.Category = null;
             }
@@ -287,7 +191,7 @@ public class AiBulkActionService : IAiBulkActionService
         {
             _logger.LogWarning(
                 ex,
-                "AI bulk action request timed out.");
+                "Gemini bulk action request timed out.");
 
             return CreateFallbackResponse(
                 "AI request timed out.");
@@ -296,7 +200,7 @@ public class AiBulkActionService : IAiBulkActionService
         {
             _logger.LogError(
                 ex,
-                "Unable to connect to Ollama.");
+                "Unable to connect to Gemini.");
 
             return CreateFallbackResponse(
                 "AI service unavailable.");
@@ -305,7 +209,7 @@ public class AiBulkActionService : IAiBulkActionService
         {
             _logger.LogError(
                 ex,
-                "Failed to parse AI response.");
+                "Failed to parse Gemini response.");
 
             return CreateFallbackResponse(
                 "Invalid AI response format.");

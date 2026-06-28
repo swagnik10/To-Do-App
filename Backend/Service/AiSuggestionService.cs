@@ -1,5 +1,4 @@
-﻿using System.Text;
-using System.Text.Json;
+﻿using System.Text.Json;
 using Backend.Configurations;
 using Backend.Dtos;
 using Microsoft.Extensions.Options;
@@ -9,7 +8,7 @@ namespace Backend.Service;
 public class AiSuggestionService : IAiSuggestionService
 {
     private readonly HttpClient _httpClient;
-    private readonly OllamaSettings _settings;
+    private readonly GeminiSettings _settings;
     private readonly ILogger<AiSuggestionService> _logger;
 
     private static readonly HashSet<string> AllowedCategories =
@@ -24,7 +23,7 @@ public class AiSuggestionService : IAiSuggestionService
 
     public AiSuggestionService(
         HttpClient httpClient,
-        IOptions<OllamaSettings> settings,
+        IOptions<GeminiSettings> settings,
         ILogger<AiSuggestionService> logger)
     {
         _httpClient = httpClient;
@@ -37,63 +36,128 @@ public class AiSuggestionService : IAiSuggestionService
         try
         {
             var prompt = $$"""
-                You are a todo assistant.
+                    You are an intelligent todo assistant.
 
-                Analyze the user's todo title.
+                    Your job is to rewrite the user's todo title into a clear, natural, and meaningful task.
 
-                Return ONLY valid JSON.
+                    Rules:
 
-                You MUST choose EXACTLY ONE category from:
+                    - Rewrite the title into a complete and meaningful sentence.
+                    - The suggested title MUST contain at least 6 words.
+                    - Keep the original intent of the user's task.
+                    - Do NOT add unrelated information.
+                    - Do NOT make the task excessively long.
+                    - Use proper grammar and capitalization.
+                    - The title should sound like something a person would actually write in a todo list.
 
-                Work
-                Personal
-                Health
-                Shopping
-                Urgent
-                Other
+                    You MUST choose EXACTLY ONE category from:
 
-                Do not invent new categories.
+                    - Work
+                    - Personal
+                    - Health
+                    - Shopping
+                    - Urgent
+                    - Other
 
-                Return ONLY valid JSON.
+                    Do NOT invent new categories.
 
-                Response Json format:
+                    Return ONLY valid JSON.
 
-                {
-                  "suggestedTitle": "",
-                  "category": ""
-                }
+                    Response format:
 
-                User title:
-                {{title}}
-                """;
+                    {
+                      "suggestedTitle": "",
+                      "category": ""
+                    }
 
-            var request = new OllamaGenerateRequest
+                    Examples:
+
+                    Input:
+                    buy milk
+
+                    Output:
+                    {
+                      "suggestedTitle": "Buy fresh milk from the grocery store",
+                      "category": "Shopping"
+                    }
+
+                    Input:
+                    gym
+
+                    Output:
+                    {
+                      "suggestedTitle": "Go to the gym for today's workout",
+                      "category": "Health"
+                    }
+
+                    Input:
+                    meeting
+
+                    Output:
+                    {
+                      "suggestedTitle": "Attend the scheduled project team meeting",
+                      "category": "Work"
+                    }
+
+                    Input:
+                    call mom
+
+                    Output:
+                    {
+                      "suggestedTitle": "Call my mother to check how she is doing",
+                      "category": "Personal"
+                    }
+
+                    User title:
+                    {{title}}
+                    """;
+
+            var requestBody = new
             {
-                Model = _settings.Model,
-                Prompt = prompt,
-                Stream = false
+                contents = new[]
+                {
+                    new
+                    {
+                        parts = new[]
+                        {
+                            new
+                            {
+                                text = prompt
+                            }
+                        }
+                    }
+                },
+                generationConfig = new
+                {
+                    temperature = 0.3,
+                    responseMimeType = "application/json"
+                }
             };
 
-            var json = JsonSerializer.Serialize(request);
+            var endpoint =
+                $"https://generativelanguage.googleapis.com/v1beta/models/{_settings.Model}:generateContent?key={_settings.ApiKey}";
 
-            var content = new StringContent(
-                json,
-                Encoding.UTF8,
-                "application/json");
-
-            var response = await _httpClient.PostAsync(
-                $"{_settings.BaseUrl}/api/generate",
-                content);
+            var response = await _httpClient.PostAsJsonAsync(
+                endpoint,
+                requestBody);
 
             response.EnsureSuccessStatusCode();
 
-            var responseContent = await response.Content.ReadAsStringAsync();
+            var json = await response.Content.ReadAsStringAsync();
 
-            var ollamaResponse = JsonSerializer.Deserialize<OllamaGenerateResponse>(responseContent);
+            using var document = JsonDocument.Parse(json);
 
-            _logger.LogInformation("Raw Ollama Response: {Response}", ollamaResponse?.Response);
+            var aiResponse =
+                document.RootElement
+                    .GetProperty("candidates")[0]
+                    .GetProperty("content")
+                    .GetProperty("parts")[0]
+                    .GetProperty("text")
+                    .GetString();
 
-            if (string.IsNullOrWhiteSpace(ollamaResponse?.Response))
+            _logger.LogInformation("Raw Gemini Response: {Response}", aiResponse);
+
+            if (string.IsNullOrWhiteSpace(aiResponse))
             {
                 return CreateFallbackResponse(
                     title,
@@ -102,7 +166,7 @@ public class AiSuggestionService : IAiSuggestionService
 
             var suggestion =
                 JsonSerializer.Deserialize<AiSuggestionResponse>(
-                    ollamaResponse.Response,
+                    aiResponse,
                     new JsonSerializerOptions
                     {
                         PropertyNameCaseInsensitive = true
@@ -127,9 +191,7 @@ public class AiSuggestionService : IAiSuggestionService
         }
         catch (TaskCanceledException ex)
         {
-            _logger.LogWarning(
-                ex,
-                "AI suggestion request timed out.");
+            _logger.LogWarning(ex, "Gemini request timed out.");
 
             return CreateFallbackResponse(
                 title,
@@ -137,9 +199,7 @@ public class AiSuggestionService : IAiSuggestionService
         }
         catch (HttpRequestException ex)
         {
-            _logger.LogError(
-                ex,
-                "Unable to connect to Ollama.");
+            _logger.LogError(ex, "Unable to connect to Gemini.");
 
             return CreateFallbackResponse(
                 title,
@@ -147,9 +207,7 @@ public class AiSuggestionService : IAiSuggestionService
         }
         catch (JsonException ex)
         {
-            _logger.LogError(
-                ex,
-                "Failed to parse AI response.");
+            _logger.LogError(ex, "Failed to parse Gemini response.");
 
             return CreateFallbackResponse(
                 title,
