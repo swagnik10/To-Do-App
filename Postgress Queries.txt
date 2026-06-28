@@ -1,0 +1,45 @@
+Create the database in NEON then apply this queries.
+
+Check Schema existance
+
+     SELECT schema_name FROM information_schema.schemata;
+
+     SELECT table_name
+    FROM information_schema.tables
+    WHERE table_schema = 'todos'
+    ORDER BY table_name;
+
+Schema Creation
+
+    CREATE SCHEMA Todos;
+
+
+Create table 
+
+    CREATE SEQUENCE todos.todoitem_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+    CREATE TABLE todos.todoitem
+    (
+        id INTEGER NOT NULL DEFAULT nextval('todos.todoitem_id_seq'),
+        todoid VARCHAR(200) NOT NULL,
+        todotitle VARCHAR(200) NOT NULL,
+        iscompleted BOOLEAN NOT NULL DEFAULT FALSE,
+        createdat TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        category VARCHAR(50),
+
+        CONSTRAINT pk_todoitem
+            PRIMARY KEY (id, todoid)
+    );
+
+    ALTER SEQUENCE todos.todoitem_id_seq
+        OWNED BY todos.todoitem.id;
+
+
+Seed the first data
+
+    INSERT INTO Todos.TodoItem(TodoId, TodoTitle, category) VALUES('sedvyhhs-kjy', 'FirstTodo', 'Others');

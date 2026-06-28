@@ -23,17 +23,16 @@ public static class NHibernateHelper
             if (_sessionFactory == null)
             {
                 _sessionFactory = Fluently.Configure()
-                    .Database(
-                        MsSqlConfiguration.MsSql2012
-                            .ConnectionString(_connectionString)
-                            .Driver<MicrosoftDataSqlClientDriver>()
-                            .ShowSql()
-                    )
-                    .Mappings(m =>
-                        m.FluentMappings
-                            .AddFromAssemblyOf<TodoItem>()
-                    )
-                    .BuildSessionFactory();
+                                        .Database(
+                                            PostgreSQLConfiguration.Standard
+                                                .ConnectionString(_connectionString)
+                                                .ShowSql()
+                                        )
+                                        .Mappings(m =>
+                                            m.FluentMappings
+                                                .AddFromAssemblyOf<TodoItem>()
+                                        )
+                                        .BuildSessionFactory();
             }
 
             return _sessionFactory;

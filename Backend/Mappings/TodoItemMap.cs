@@ -7,13 +7,13 @@ public class TodoItemMap : ClassMap<TodoItem>
 {
     public TodoItemMap()
     {
-        Schema("Todos");
+        Schema("todos");
 
-        Table("TodoItem");
+        Table("todoitem");
 
         Id(x => x.Id)
             .Column("Id")
-            .GeneratedBy.Identity();
+            .GeneratedBy.Sequence("todoitem_id_seq");
 
         Map(x => x.TodoId)
             .Column("TodoId")
@@ -33,15 +33,8 @@ public class TodoItemMap : ClassMap<TodoItem>
             .Column("CreatedAt");
 
         Map(x => x.Category)
-        .Column("Category")
-        .Length(50)
-        .Nullable();
+            .Column("Category")
+            .Length(50)
+            .Nullable();
     }
 }
-
-
-
-
-
-
-
